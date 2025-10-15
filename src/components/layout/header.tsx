@@ -4,11 +4,9 @@ import Image from 'next/image';
 import HeaderIcon from './header-icon';
 import Link from 'next/link';
 import Search from './search';
+import { MenuItem } from '@/types/menu';
 
-type MenuItem = {
-    label: string,
-    href: string
-}
+
 
 const Header = () => {
     const menu: MenuItem[] = [
