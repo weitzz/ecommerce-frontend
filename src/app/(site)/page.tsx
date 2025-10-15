@@ -1,4 +1,5 @@
 import { Banners } from "@/components/home/banners";
+import ProductListSkeleton from "@/components/home/product-list-skeleton";
 import { data } from "@/data";
 import Image from "next/image";
 
@@ -38,6 +39,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <ProductListSkeleton />
     </>
   );
 }
