@@ -1,5 +1,5 @@
 import { data } from "@/data"
-import ProductList from "../product-list"
+import ProductList from "../product/product-list"
 
 
 export const MostSoldProducts = async () => {
