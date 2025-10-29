@@ -4,15 +4,18 @@ import { useQueryString } from "@/hooks/useQueryString"
 import { ChangeEvent, useState } from "react"
 import CheckBoxInput from "./checkbox"
 import Image from "next/image"
+import { useMenuStore } from "@/store/menuStore"
 type Props = {
     id: string
     name: string
 }
 
 const FilterGroup = ({ id, name }: Props) => {
-    const [opened, setOpened] = useState(true)
+    //const [opened, setOpened] = useState(true)
     const queryString = useQueryString()
     const order = queryString.get('order') ?? 'views'
+    const { groups, toggleGroup } = useMenuStore()
+    const opened = groups[id] ?? true
 
     const handleSelectChanged = (event: ChangeEvent<HTMLSelectElement>) => {
         queryString.set('order', event.target.value)
@@ -21,8 +24,11 @@ const FilterGroup = ({ id, name }: Props) => {
         <div className="mb-8">
             <div className="flex justify-between items-center border-b border-gray-200 pb-4 ">
                 <h2 className="flex 1 font-bold text-xl">{name}</h2>
-                <div onClick={() => setOpened(!opened)} className="cursor-pointer size-8 flex justify-center items-center">
-                    <Image src={"/ui/arrow-left-s-line.png"} width={24} height={24} alt="" className={`${opened ? "rotate-0" : "rotate-180"} transition-all `} />
+                <div onClick={() => toggleGroup(id)}
+                    className="cursor-pointer size-8 flex justify-center items-center">
+                    <Image
+                        src={"/ui/arrow-left-s-line.png"} width={24} height={24} alt=""
+                        className={`${opened ? "rotate-0" : "rotate-180"} transition-all `} />
                 </div>
             </div>
 

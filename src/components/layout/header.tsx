@@ -1,10 +1,10 @@
 'use client'
-import { useState } from 'react';
 import Image from 'next/image';
 import HeaderIcon from './header-icon';
 import Link from 'next/link';
 import Search from './search';
 import { MenuItem } from '@/types/menu';
+import { useMenuStore } from '@/store/menuStore';
 
 
 
@@ -13,7 +13,7 @@ const Header = () => {
         { label: "Camisa", href: '/categories/camisa' },
         { label: "Kits", href: '/categories/kits' }]
 
-    const [open, setOpen] = useState(false)
+    const { isOpen, toggleMenu } = useMenuStore();
     return (
         <header className="bg-white border-b border-gray-100">
             <p className="bg-black text-white text-center p-4">
@@ -49,19 +49,19 @@ const Header = () => {
                         <Link href={"/cart"}>
                             <HeaderIcon src="/ui/shopping-bag-4-line.png" alt="Carrinho" width={24} height={24} />
                         </Link>
-                        <div className='md:hidden' onClick={() => setOpen(!open)}>
+                        <div className='md:hidden' onClick={toggleMenu}>
                             <HeaderIcon src="/ui/menu-line.png"
                                 alt="Menu"
                                 width={24}
                                 height={24}
-                                selected={open}
+                                selected={isOpen}
                                 srcSelect="/ui/menu-line-white.png" />
                         </div>
                     </div>
                 </div>
 
             </section>
-            {open &&
+            {isOpen &&
                 <div className='md:hidden pb-6'>
                     {menu.map(item => (
                         <Link key={item.label} href={item.href}>
