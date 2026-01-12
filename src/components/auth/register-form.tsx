@@ -1,5 +1,6 @@
 'use client'
 import { loginAction } from '@/actions/login'
+import { registerAction } from '@/actions/register'
 import { setAuthCookie } from '@/actions/set-auth-cookie'
 import { useAuthStore } from '@/store/auth'
 import Link from 'next/link'
@@ -8,12 +9,23 @@ import React, { startTransition, useState, useTransition } from 'react'
 import z from 'zod'
 
 const schema = z.object({
+    name: z.string().min(2, { message: 'Name must be at least 2 characters' }),
     email: z.email({ message: 'Invalid email address' }),
     password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
+    confirmPassword: z.string().min(6, { message: 'Confirm Password must be at least 6 characters' }),
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match", path: ['confirmPassword'],
 })
-type ErrorStructure = { email?: string; password?: string, form?: string }
-const LoginForm = () => {
-    const [form, setForm] = useState({ email: '', password: '' })
+
+type ErrorStructure = {
+    name?: string,
+    email?: string,
+    password?: string,
+    confirmPassword?: string,
+    form?: string
+}
+const RegisterForm = () => {
+    const [form, setForm] = useState({ email: '', password: '', name: '', confirmPassword: '' })
     const [errors, setErrors] = useState<ErrorStructure>({})
     const [pending, setPending] = useTransition()
     const authStore = useAuthStore(state => state)
@@ -40,14 +52,13 @@ const LoginForm = () => {
         }
         setErrors({})
         startTransition(async () => {
-            const res = await loginAction(form)
+            const res = await registerAction(form)
             if (res.error) {
                 setErrors({ form: res.error })
             }
-            else if (res.token) {
-                await setAuthCookie(res.token)
-                authStore.setToken(res.token)
-                redirect('/')
+            else {
+
+                redirect('/login')
             }
         })
     }
@@ -55,7 +66,21 @@ const LoginForm = () => {
 
     return (
         <form onSubmit={handleSubmit} className='bg-white border border-gray-200 p-8 rounded-sm'>
-            <h2 className='text-xl font-bold mb-4'>Login</h2>
+            <h2 className='text-xl font-bold mb-4'>Cadastro</h2>
+            <div className='mb-4'>
+                <label className='mb-1' htmlFor='name'>Nome</label>
+                <input
+                    autoFocus
+                    type='text'
+                    name='name'
+                    value={form.name}
+                    onChange={handleChange}
+                    className='w-full py-2 px-3 border rounded-sm border-gray-200'
+                    disabled={pending}
+                />
+                {errors.name && <p className='text-red-500 text-sm mt-1'>{errors.name}</p>}
+
+            </div>
             <div className='mb-4'>
                 <label className='mb-1' htmlFor='email'>Email</label>
                 <input
@@ -83,15 +108,28 @@ const LoginForm = () => {
                 {errors.password && <p className='text-red-500 text-sm mt-1'>{errors.password}</p>}
 
             </div>
+            <div className='mb-4'>
+                <label className='mb-1' htmlFor='confirmPassword'>Confirmar Senha</label>
+                <input
+                    type='password'
+                    name='confirmPassword'
+                    value={form.confirmPassword}
+                    onChange={handleChange}
+                    className='w-full py-2 px-3 border rounded-sm border-gray-200'
+                    disabled={pending}
+                />
+                {errors.confirmPassword && <p className='text-red-500 text-sm mt-1'>{errors.confirmPassword}</p>}
+
+            </div>
             <button type='submit' className='w-full bg-blue-600 text-white py-2 rounded-sm cursor-pointer' disabled={pending}>
-                {pending ? 'Logging in...' : 'Login'}
+                {pending ? 'Registrando...' : 'Registrar'}
             </button>
             {errors.form && <p className='text-red-500 text-sm mt-2'>{errors.form}</p>}
             <div className='text-center mt-4'>
-                <Link href='/register' className='text-gray-500 text-sm'>Não tem uma conta? Cadastre-se</Link>
+                <Link href='/login' className='text-gray-500 text-sm'>Já tem uma conta? Faça login</Link>
             </div>
         </form>
     )
 }
 
-export default LoginForm
+export default RegisterForm

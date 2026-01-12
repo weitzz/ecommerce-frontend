@@ -6,6 +6,7 @@ import React, { useEffect } from 'react'
 import { CartProductList } from './cart-product-list'
 import ButtonFinish from './button-finish'
 import Link from 'next/link'
+import { ShippingBox } from './shipping-box'
 type Props = {
     initialCartProducts: CartListItem[]
     initialSubtotal: number
@@ -33,10 +34,7 @@ export const CartContainer = ({ initialCartProducts, initialSubtotal }: Props) =
                     <CartProductList initialList={initialCartProducts} />
                 </div>
                 <div className='flex-1 md:max-w-sm flex flex-col gap-4'>
-                    <div className='bg-white border border-gray-200 rounded-sm'>
-                        {/* frete */}
-                        frete.....
-                    </div>
+                    <ShippingBox />
                     <div className='bg-white border border-gray-200 rounded-sm'>
                         <div className='border-b border-gray-200 p-6'>
                             <div className='flex justify-between items-center mb-5'>
