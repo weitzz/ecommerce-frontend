@@ -7,7 +7,7 @@ import Image from "next/image"
 
 type Props = {
     data: {
-        id: string | number
+        id: number
         liked: boolean
     }
 }

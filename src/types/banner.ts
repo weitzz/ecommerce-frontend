@@ -1,4 +1,4 @@
 export type Banner = {
-    img: string,
-    link: string
+    imageUrl: string,
+    linkUrl: string
 }

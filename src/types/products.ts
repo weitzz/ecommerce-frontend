@@ -1,16 +1,16 @@
 export type Product = {
     id: number
-    label: string
+    name: string
     image: string
     price: number
-    liked: boolean
+    liked?: boolean
 }
 
 export type ProductComplete = {
     id: number
-    label: string
+    name: string
     images: string[]
     price: number
-    liked: boolean
+    liked?: boolean
     description: string
 }

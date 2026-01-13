@@ -37,10 +37,19 @@ export const Banners = ({ list }: Props) => {
         <section>
             <div className="relative aspect-[3/1]">
                 {list.map((banner, index) => (
-                    <Link key={index} href={banner.link}
+                    <Link
+                        key={index}
+                        href={banner.linkUrl}
                         className="transition-all absolute inset-0"
-                        style={{ opacity: currentImg === index ? 1 : 0 }}>
-                        <Image src={banner.img} alt="" width={1200} height={400} className="rounded-b-sm" />
+                        style={{ opacity: currentImg === index ? 1 : 0 }}
+                    >
+                        <Image
+                            src={banner.imageUrl}
+                            alt=""
+                            width={1200}
+                            height={400}
+                            className="rounded-b-sm"
+                        />
                     </Link>
                 ))}
             </div>
