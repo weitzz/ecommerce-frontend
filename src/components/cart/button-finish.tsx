@@ -6,7 +6,6 @@ import { useAuthStore } from "@/store/auth"
 import { useCartStore } from "@/store/cartStore"
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { use } from "react"
 
 function ButtonFinish() {
     const { token, hydrated } = useAuthStore(state => state)
@@ -36,7 +35,7 @@ function ButtonFinish() {
         <button
             onClick={handleFinishButton}
             disabled={!cartStore.selectedAddressId ? true : false}
-            className='w-full text-center px-6 py-5 bg-blue-600 text-white border-0 rounded-sm disabled:opacity-20'>Finalizar Compra</button>
+            className='cursor-pointer w-full text-center px-6 py-5 bg-blue-600 text-white border-0 rounded-sm disabled:opacity-20'>Finalizar Compra</button>
     )
 }
 

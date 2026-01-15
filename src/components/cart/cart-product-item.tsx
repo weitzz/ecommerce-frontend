@@ -38,13 +38,13 @@ export const CartProductItem = ({ item }: Props) => {
             <div className='border border-gray-200 p-1'>
                 <Image
                     src={item.product.image}
-                    alt={item.product.label}
+                    alt={item.product.name}
                     width={96}
                     height={96} className='size-24 md:size-16' />
             </div>
             <div className='flex-1 flex flex-col md:flex-row justify-between md:items-center '>
                 <div>
-                    <h2 className='text-sm mb-2'>{item.product.label}</h2>
+                    <h2 className='text-sm mb-2'>{item.product.name}</h2>
                     <span className='hidden md:block text-xs text-gray-500'>COD: {item.product.id}</span>
                 </div>
 
@@ -61,7 +61,7 @@ export const CartProductItem = ({ item }: Props) => {
                     <button onClick={handleRemove} className='cursor-pointer border border-gray-200 size-12 flex justify-center items-center rounded'>
                         <Image
                             src={'/ui/trash.png'}
-                            alt={item.product.label}
+                            alt={item.product.name}
                             width={24}
                             height={24} />
                     </button>

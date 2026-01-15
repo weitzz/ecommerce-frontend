@@ -1,27 +1,29 @@
 'use server'
 
 
+import { api } from "@/libs/axios"
 import { CartItem } from "@/types/cart-item"
 
-export const finishCart = async (token: string, addressId: number, cart: CartItem[]) => {
-    return fetch(`${process.env.NEXT_PUBLIC_API_URL}/checkout/finish`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-            addressId,
-            cart
-        })
-    })
-        .then(res => res.json())
-        .then(data => {
-            return data.sessionUrl as string
-        })
-        .catch(err => {
-            console.log(err)
-            return null
-        })
 
+
+export const finishCart = async (token: string, addressId: number, cart: CartItem[]) => {
+    try {
+        const response = await api.post('/cart/finish', {
+
+            cart,
+            addressId
+        }, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        if (response.data.url) {
+            return response.data.url
+        }
+        console.log(response.data)
+    } catch (error: any) {
+        console.log('STATUS:', error.response?.status)
+        console.log('DATA:', error.response?.data)
+    }
+    return null
 }

@@ -3,7 +3,7 @@ import { getProductsFromList } from '@/actions/get-products-from-list'
 import { CartContainer } from '@/components/cart/cart-container'
 import { CartListItem } from '@/types/cart-list-item'
 import { redirect } from 'next/navigation'
-import React from 'react'
+
 
 const Page = async () => {
     const { cart: initialCart } = await getCartState()

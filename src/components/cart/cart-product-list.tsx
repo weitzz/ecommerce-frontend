@@ -15,7 +15,7 @@ export const CartProductList = ({ initialList }: Props) => {
     //     cartStore.clearShipping()
     // }, [])
     return (
-        <div className='bg-white border md:border-b-0  border-gray-200'>
+        <div className='bg-white border md:border-b-0 rounded border-gray-200'>
             {initialList.map(item => (
                 <CartProductItem key={item.product.id} item={item} />
             ))}
