@@ -27,9 +27,8 @@ export const getProducts = async (
     }
 
     try {
-        const { data } = await api.get<Product[]>("/products", { params })
-
-        return data
+        const response = await api.get("/products", { params })
+        return response.data.products as Product[]
     } catch (error) {
         console.error("[getProducts]", error)
         return []

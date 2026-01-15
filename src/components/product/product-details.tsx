@@ -22,7 +22,7 @@ export const ProductDetails = ({ product }: Props) => {
     return (
         <section className='flex-1'>
             <span className='text-gray-400 text-xs mb-2'>Cod: {product.id}</span>
-            <h3 className='text-3xl font-bold mb-6'>{product.label}</h3>
+            <h3 className='text-3xl font-bold mb-6'>{product.name}</h3>
             <p className='text-2xl text-blue-600 font-bold mb-2'>R$ {product.price.toFixed(2)}</p>
             <p className='text-gray-400 text-sm mb-6'>Em até 12x sem juros</p>
             <div className='flex gap-4'>

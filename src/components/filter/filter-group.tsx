@@ -5,21 +5,20 @@ import { ChangeEvent, useState } from "react"
 import CheckBoxInput from "./checkbox"
 import Image from "next/image"
 import { useMenuStore } from "@/store/menuStore"
+import { CategoryMetadataValue } from "@/types/category"
 type Props = {
     id: string
     name: string
+    values: CategoryMetadataValue[]
 }
 
-const FilterGroup = ({ id, name }: Props) => {
-    //const [opened, setOpened] = useState(true)
+const FilterGroup = ({ id, name, values }: Props) => {
     const queryString = useQueryString()
     const order = queryString.get('order') ?? 'views'
     const { groups, toggleGroup } = useMenuStore()
     const opened = groups[id] ?? true
 
-    const handleSelectChanged = (event: ChangeEvent<HTMLSelectElement>) => {
-        queryString.set('order', event.target.value)
-    }
+
     return (
         <div className="mb-8">
             <div className="flex justify-between items-center border-b border-gray-200 pb-4 ">
@@ -33,9 +32,9 @@ const FilterGroup = ({ id, name }: Props) => {
             </div>
 
             <div className={` overflow-y-hidden ${opened ? "max-h-96" : "max-h-0"} transition-all`}>
-                <CheckBoxInput item={{ id: "1", label: "item 1" }} groupId={id} />
-                <CheckBoxInput item={{ id: "2", label: "item 2" }} groupId={id} />
-                <CheckBoxInput item={{ id: "3", label: "item 3" }} groupId={id} />
+                {values.map(item => (
+                    <CheckBoxInput key={item.id} item={item} groupId={id} />
+                ))}
             </div>
         </div >
     )

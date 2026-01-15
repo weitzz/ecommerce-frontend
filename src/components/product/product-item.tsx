@@ -11,7 +11,7 @@ type Props = {
 
 function ProductItem({ data }: Props) {
     const [liked, setLiked] = useState(data.liked)
-    const link = `product/${data.id}`
+    const link = `/product/${data.id}`
 
 
     const toggleLiked = () => {

@@ -1,0 +1,1 @@
+export type Order = 'views' | 'price' | 'selling' | undefined
