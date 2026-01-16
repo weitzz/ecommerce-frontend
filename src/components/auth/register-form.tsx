@@ -1,7 +1,6 @@
 'use client'
 
 import { registerAction } from '@/actions/register'
-import { useAuthStore } from '@/store/auth'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import React, { startTransition, useState, useTransition } from 'react'
