@@ -5,48 +5,39 @@ import { useAuthStore } from '@/store/auth'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import React, { startTransition, useState, useTransition } from 'react'
-import z from 'zod'
+import { Input } from '../ui/input'
 
-const schema = z.object({
-    email: z.email({ message: 'Invalid email address' }),
-    password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
-})
-type ErrorStructure = { email?: string; password?: string, form?: string }
+
+type Errors = {
+    fieldErrors?: {
+        email?: string
+        password?: string
+    }
+    formError?: string
+}
+
 const LoginForm = () => {
     const [form, setForm] = useState({ email: '', password: '' })
-    const [errors, setErrors] = useState<ErrorStructure>({})
+    const [errors, setErrors] = useState<Errors>({})
     const [pending, setPending] = useTransition()
     const authStore = useAuthStore(state => state)
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm(form => ({ ...form, [e.target.name]: e.target.value }))
-        setErrors(errors => ({ ...errors, [e.target.name]: undefined, form: undefined }))
+        setErrors(errors => ({ ...errors, fieldErrors: { ...errors.fieldErrors, [e.target.name]: undefined }, formError: undefined }))
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        setErrors({})
-        const result = schema.safeParse(form)
-        if (!result.success) {
-            const fieldErrors: any = {}
-            result.error.issues.forEach(err => {
-                if (err.path[0]) {
-                    fieldErrors[err.path[0]] = err.message
-                }
-
-            })
-            setErrors(fieldErrors)
-            return
-        }
-        setErrors({})
         startTransition(async () => {
-            const res = await loginAction(form)
-            if (res.error) {
-                setErrors({ form: res.error })
+            const result = await loginAction(form)
+            if (!result.success) {
+                setErrors(result.errors || {})
+                return
             }
-            else if (res.token) {
-                await setAuthCookie(res.token)
-                authStore.setToken(res.token)
+            if (result.token) {
+                await setAuthCookie(result.token)
+                authStore.setToken(result.token)
                 redirect('/')
             }
         })
@@ -57,36 +48,33 @@ const LoginForm = () => {
         <form onSubmit={handleSubmit} className='bg-white border border-gray-200 p-8 rounded-sm'>
             <h2 className='text-xl font-bold mb-4'>Login</h2>
             <div className='mb-4'>
-                <label className='mb-1' htmlFor='email'>Email</label>
-                <input
-                    autoFocus
+                <Input
+                    label='Email'
                     type='email'
                     name='email'
                     value={form.email}
                     onChange={handleChange}
-                    className='w-full py-2 px-3 border rounded-sm border-gray-200'
-                    disabled={pending}
-                />
-                {errors.email && <p className='text-red-500 text-sm mt-1'>{errors.email}</p>}
+                    className='w-full py-2 px-3'
+                    error={errors.fieldErrors?.email}
+                    disabled={pending} />
 
             </div>
             <div className='mb-4'>
-                <label className='mb-1' htmlFor='password'>Senha</label>
-                <input
+                <Input
+                    label='Senha'
                     type='password'
                     name='password'
                     value={form.password}
                     onChange={handleChange}
-                    className='w-full py-2 px-3 border rounded-sm border-gray-200'
+                    className='w-full py-2 px-3 '
+                    error={errors.fieldErrors?.password}
                     disabled={pending}
                 />
-                {errors.password && <p className='text-red-500 text-sm mt-1'>{errors.password}</p>}
-
             </div>
             <button type='submit' className='w-full bg-blue-600 text-white py-2 rounded-sm cursor-pointer' disabled={pending}>
                 {pending ? 'Logging in...' : 'Login'}
             </button>
-            {errors.form && <p className='text-red-500 text-sm mt-2'>{errors.form}</p>}
+            {errors.formError && (<p className='text-red-500 text-sm mt-2'>{errors.formError}</p>)}
             <div className='text-center mt-4'>
                 <Link href='/register' className='text-gray-500 text-sm'>Não tem uma conta? Cadastre-se</Link>
             </div>

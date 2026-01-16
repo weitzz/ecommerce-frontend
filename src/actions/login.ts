@@ -2,6 +2,7 @@
 
 import { api } from "@/libs/axios"
 import { AxiosError } from "axios"
+import { LoginSchema } from "@/schemas/login"
 
 
 
@@ -10,22 +11,53 @@ type LoginData = {
     password: string
 }
 
-export async function loginAction({ email, password }: LoginData): Promise<{ error: string | null, token?: string }> {
+type LoginResponse = {
+    success: boolean
+    token?: string
+    errors?: {
+        fieldErrors?: {
+            email?: string
+            password?: string
+        }
+        formError?: string
+    }
+}
+
+
+export async function loginAction(data: LoginData): Promise<LoginResponse> {
+    const parsed = LoginSchema.safeParse(data)
+    if (!parsed.success) {
+        const fieldErrors: Record<string, string> = {}
+        parsed.error.issues.forEach(issue => {
+            const field = issue.path[0] as string
+            fieldErrors[field] = issue.message
+        })
+        return {
+            success: false,
+            errors: {
+                fieldErrors
+            }
+        }
+    }
     try {
-        const response = await api.post('/user/login', { email, password })
-        return { error: null, token: response.data.token }
+        const response = await api.post('/user/login', data)
+
+        return { success: true, token: response.data.token }
     } catch (error) {
         if (error instanceof AxiosError) {
             return {
-                error: error.response?.data?.message ?? 'Acesso negado'
+                success: false,
+                errors: {
+                    formError: error.response?.data?.errors || 'Credenciais inválidas'
+                }
             }
-        }
-        else {
-            console.error('Erro inesperado:', error)
         }
 
         return {
-            error: 'Acesso negado'
+            success: false,
+            errors: {
+                formError: 'Ocorreu um erro inesperado. Tente novamente mais tarde.'
+            }
         }
     }
 }
