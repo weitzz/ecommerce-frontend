@@ -1,21 +1,12 @@
 'use client'
-import { loginAction } from '@/actions/login'
+
 import { registerAction } from '@/actions/register'
-import { setAuthCookie } from '@/actions/set-auth-cookie'
 import { useAuthStore } from '@/store/auth'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import React, { startTransition, useState, useTransition } from 'react'
-import z from 'zod'
+import { RegisterSchema } from '@/schemas/register'
 
-const schema = z.object({
-    name: z.string().min(2, { message: 'Name must be at least 2 characters' }),
-    email: z.email({ message: 'Invalid email address' }),
-    password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
-    confirmPassword: z.string().min(6, { message: 'Confirm Password must be at least 6 characters' }),
-}).refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match", path: ['confirmPassword'],
-})
 
 type ErrorStructure = {
     name?: string,
@@ -38,7 +29,7 @@ const RegisterForm = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setErrors({})
-        const result = schema.safeParse(form)
+        const result = RegisterSchema.safeParse(form)
         if (!result.success) {
             const fieldErrors: any = {}
             result.error.issues.forEach(err => {
