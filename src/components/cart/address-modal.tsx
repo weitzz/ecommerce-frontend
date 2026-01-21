@@ -1,6 +1,6 @@
 import { Address } from '@/types/address'
 import React, { startTransition, useState, useTransition } from 'react'
-import z, { set } from 'zod'
+import z from 'zod'
 
 const schema = z.object({
     zipcode: z.string().min(5, "O CEP deve ter no mínimo 5 caracteres"),
