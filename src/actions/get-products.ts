@@ -4,10 +4,12 @@ import { api } from "@/libs/axios"
 import { Product } from "@/types/products"
 
 type ProductFilter = {
-    metadata?: Record<string, string>
+    metadata?: Record<string, string[]>
     orderBy?: 'views' | 'selling' | 'price'
     limit?: number
+    search?: string
 }
+
 
 export const getProducts = async (
     filters: ProductFilter
@@ -16,14 +18,21 @@ export const getProducts = async (
 
     if (filters.metadata) {
         params.metadata = JSON.stringify(filters.metadata)
+        console.log(JSON.stringify(filters.metadata))
     }
 
     if (filters.orderBy) {
         params.orderBy = filters.orderBy
+        console.log(filters.orderBy)
+    } else {
+        params.orderBy
     }
 
     if (typeof filters.limit === "number") {
         params.limit = filters.limit
+    }
+    if (filters.search) {
+        params.search = filters.search
     }
 
     try {

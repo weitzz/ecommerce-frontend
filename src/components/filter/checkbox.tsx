@@ -1,6 +1,7 @@
 "use client"
 import { useQueryString } from '@/hooks/useQueryString'
-import React from 'react'
+import { useEffect, useState } from 'react'
+
 type Props = {
     groupId: string
     item: {
@@ -10,27 +11,38 @@ type Props = {
 }
 function CheckBoxInput({ groupId, item }: Props) {
     const queryString = useQueryString()
-    const toggleFilter = (groupId: string, itemId: string) => {
+    const [checked, setChecked] = useState(false)
+
+    useEffect(() => {
+        const current = queryString.get(groupId)?.split('|') ?? []
+        setChecked(current.includes(item.id))
+    }, [groupId, item.id])
+
+
+
+    const toggleFilter = () => {
         const queryGroup = queryString.get(groupId)
         let currentFilters = queryGroup ? queryGroup.split('|') : []
 
-        if (currentFilters.includes(itemId)) {
-            currentFilters = currentFilters.filter(i => i !== itemId)
+        if (currentFilters.includes(item.id)) {
+            currentFilters = currentFilters.filter(i => i !== item.id)
         } else {
-            currentFilters.push(itemId)
+            currentFilters.push(item.id)
         }
+
         queryString.set(groupId, currentFilters.join('|'))
+        setChecked(!checked)
     }
-    const hasFilter = (groupId: string, itemId: string) => {
-        let currentFilters = queryString.get(groupId)?.split('|')
-        return currentFilters && currentFilters.includes(itemId) ? true : false
-    }
+
 
     return (
         <div className=" flex gap-4 items-center mt-4 ">
-            <input onChange={() => toggleFilter(groupId, item.id)}
-                checked={hasFilter(groupId, item.id)}
-                type="checkbox" className="size-6" id={`ck-${item.id}`} />
+            <input
+                onChange={toggleFilter}
+                checked={checked}
+                type="checkbox"
+                className="size-6"
+                id={`ck-${item.id}`} />
             <label htmlFor={`ck-${item.id}`} className="text-gray-500 text-lg">{item.label}</label>
         </div>
     )

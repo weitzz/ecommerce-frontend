@@ -22,7 +22,7 @@ function Footer() {
                         <h3 className="font-bold text-2xl mb-6 md:mb-2">Fique por dentro das promoções</h3>
                         <p className="text-gray-400">Coloque seu e-mail e seja o primeiro a saber</p>
                     </div>
-                    <form method="POST" className="w-full flex-1 flex flex-col gap-4 md:flex-row">
+                    <form className="w-full flex-1 flex flex-col gap-4 md:flex-row">
                         <input
                             type="text"
                             className="flex-1 border border-gray-200 rounded-sm px-6 py-5 outline-0"

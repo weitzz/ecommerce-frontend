@@ -17,7 +17,7 @@ export const useQueryString = () => {
             } else {
                 params.delete(att)
             }
-            router.push(`${pathname}?${params.toString()}`)
+            router.replace(`${pathname}?${params.toString()}`)
         }
     }
 }

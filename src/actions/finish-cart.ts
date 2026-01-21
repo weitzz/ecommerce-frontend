@@ -20,7 +20,7 @@ export const finishCart = async (token: string, addressId: number, cart: CartIte
         if (response.data.url) {
             return response.data.url
         }
-        console.log(response.data)
+
     } catch (error: any) {
         console.log('STATUS:', error.response?.status)
         console.log('DATA:', error.response?.data)

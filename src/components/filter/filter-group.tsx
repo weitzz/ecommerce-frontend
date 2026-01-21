@@ -13,17 +13,16 @@ type Props = {
 }
 
 const FilterGroup = ({ id, name, values }: Props) => {
-    const queryString = useQueryString()
-    const order = queryString.get('order') ?? 'views'
-    const { groups, toggleGroup } = useMenuStore()
-    const opened = groups[id] ?? true
+    // const { groups, toggleGroup } = useMenuStore()
+    // const opened = groups[id] ?? true
+    const [opened, setOpened] = useState(true)
 
-
+    console.log(values)
     return (
         <div className="mb-8">
             <div className="flex justify-between items-center border-b border-gray-200 pb-4 ">
                 <h2 className="flex 1 font-bold text-xl">{name}</h2>
-                <div onClick={() => toggleGroup(id)}
+                <div onClick={() => setOpened(!opened)}
                     className="cursor-pointer size-8 flex justify-center items-center">
                     <Image
                         src={"/ui/arrow-left-s-line.png"} width={24} height={24} alt=""
@@ -33,7 +32,7 @@ const FilterGroup = ({ id, name, values }: Props) => {
 
             <div className={` overflow-y-hidden ${opened ? "max-h-96" : "max-h-0"} transition-all`}>
                 {values.map(item => (
-                    <CheckBoxInput key={item.id} item={item} groupId={id} />
+                    <CheckBoxInput key={item.id} item={{ id: item.id, label: item.label }} groupId={id} />
                 ))}
             </div>
         </div >

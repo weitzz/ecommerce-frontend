@@ -1,4 +1,4 @@
-"use server"
+
 
 import { api } from "@/libs/axios"
 import { Category, CategoryMetadata } from "@/types/category"
@@ -11,7 +11,7 @@ type CategoryWithMetadata = {
 export const getCategoryWithMetadata = async (slug: string) => {
     try {
         const response = await api.get(`/category/${slug}/metadata`)
-        console.log(response.data)
+        console.log(response.data.metadata);
         return response.data as CategoryWithMetadata
     } catch (error) {
         console.error(

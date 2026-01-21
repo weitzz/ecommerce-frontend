@@ -13,6 +13,7 @@ export default async function Page({ params, searchParams }: Props) {
     const { slug } = await params
     const filters = await searchParams
     const categoryWithMetadata = await getCategoryWithMetadata(slug)
+
     if (!categoryWithMetadata) {
         redirect('/')
         return
