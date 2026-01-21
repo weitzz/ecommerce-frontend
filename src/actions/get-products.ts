@@ -18,12 +18,10 @@ export const getProducts = async (
 
     if (filters.metadata) {
         params.metadata = JSON.stringify(filters.metadata)
-        console.log(JSON.stringify(filters.metadata))
     }
 
     if (filters.orderBy) {
         params.orderBy = filters.orderBy
-        console.log(filters.orderBy)
     } else {
         params.orderBy
     }

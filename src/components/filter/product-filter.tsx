@@ -38,14 +38,11 @@ const ProductFilter = ({ category, metadata, filters }: Props) => {
         const value = event.target.value
         queryString.set('order', value)
     }
-
     const normalizeFilters = (filters: any) => {
         const metadata: Record<string, string[]> = {}
 
         for (const key in filters) {
-            // --- ADICIONE ESTA LINHA ABAIXO ---
-            if (key === 'order') continue; // Pula o parâmetro de ordenação
-            // ---------------------------------
+            if (key === 'order') continue;
 
             const value = filters[key]
             if (!value) continue
@@ -78,7 +75,6 @@ const ProductFilter = ({ category, metadata, filters }: Props) => {
     useEffect(() => {
         fetchProducts(filters)
     }, [filters, order])
-
 
 
     console.log(metadata)

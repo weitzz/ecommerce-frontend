@@ -71,46 +71,52 @@ export const AddressModal = ({ open, onClose, onAdd }: Props) => {
                         disabled={pending}
                     />
                     {/* {errors.zipcode && <p className='text-red-500 text-sm mt-1'>{errors.zipcode}</p>} */}
-                    <input
+                    <div className='flex flex-row gap-2'>
 
-                        type='text'
-                        name='street'
-                        placeholder='Digite a Rua'
-                        value={form.street}
-                        onChange={handleChange}
-                        className='w-full py-2 px-3 border rounded-sm border-gray-200'
-                        disabled={pending}
-                    />
-                    <input
+                        <input
 
-                        type='text'
-                        name='number'
-                        placeholder='Digite o número'
-                        value={form.number}
-                        onChange={handleChange}
-                        className='w-full py-2 px-3 border rounded-sm border-gray-200'
-                        disabled={pending}
-                    />
-                    <input
+                            type='text'
+                            name='street'
+                            placeholder='Digite a Rua'
+                            value={form.street}
+                            onChange={handleChange}
+                            className='w-full py-2 px-3 border rounded-sm border-gray-200'
+                            disabled={pending}
+                        />
+                        <input
 
-                        type='text'
-                        name='city'
-                        placeholder='Digite a Cidade'
-                        value={form.city}
-                        onChange={handleChange}
-                        className='w-full py-2 px-3 border rounded-sm border-gray-200'
-                        disabled={pending}
-                    />
-                    <input
+                            type='text'
+                            name='number'
+                            placeholder='Digite o número'
+                            value={form.number}
+                            onChange={handleChange}
+                            className='w-full py-2 px-3 border rounded-sm border-gray-200'
+                            disabled={pending}
+                        />
+                    </div>
+                    <div className='flex gap-2'>
 
-                        type='text'
-                        name='state'
-                        placeholder='Digite o Estado'
-                        value={form.state}
-                        onChange={handleChange}
-                        className='w-full py-2 px-3 border rounded-sm border-gray-200'
-                        disabled={pending}
-                    />
+                        <input
+
+                            type='text'
+                            name='city'
+                            placeholder='Digite a Cidade'
+                            value={form.city}
+                            onChange={handleChange}
+                            className='w-full py-2 px-3 border rounded-sm border-gray-200'
+                            disabled={pending}
+                        />
+                        <input
+
+                            type='text'
+                            name='state'
+                            placeholder='Digite o Estado'
+                            value={form.state}
+                            onChange={handleChange}
+                            className='w-full py-2 px-3 border rounded-sm border-gray-200'
+                            disabled={pending}
+                        />
+                    </div>
                     <input
 
                         type='text'

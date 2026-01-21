@@ -8,7 +8,6 @@ export const getProductCategory = async (id: number) => {
 
     try {
         const response = await api.get(`/product/${id}`)
-        console.log(response.data)
         return {
             product: response.data.product as ProductComplete,
             category: response.data.category as Category,

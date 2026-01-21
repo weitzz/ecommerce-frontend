@@ -2,9 +2,10 @@
 import Image from 'next/image';
 import HeaderIcon from './header-icon';
 import Link from 'next/link';
-import Search from './search';
+import Search from '../filter/search';
 import { MenuItem } from '@/types/menu';
 import { useMenuStore } from '@/store/menuStore';
+import { useAuthStore } from '@/store/auth';
 
 
 
