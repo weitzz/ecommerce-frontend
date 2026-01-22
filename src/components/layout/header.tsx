@@ -5,16 +5,20 @@ import Link from 'next/link';
 import Search from '../filter/search';
 import { MenuItem } from '@/types/menu';
 import { useMenuStore } from '@/store/menuStore';
-import { useAuthStore } from '@/store/auth';
+import { clearAuthCookie } from '@/actions/clear-auth-cookie';
 
+type HeaderProps = {
+    isAuthenticated: boolean;
+};
 
-
-const Header = () => {
+const Header = ({ isAuthenticated }: HeaderProps) => {
     const menu: MenuItem[] = [
         { label: "Camisas", href: '/categories/camisas' },
-        { label: "Kits", href: '/categories/kits' }]
+        { label: "Kits", href: '/categories/kits' },
+        { label: "Bonés", href: '/categories/bones' }]
 
     const { isOpen, toggleMenu } = useMenuStore();
+
     return (
         <header className="bg-white border-b border-gray-100">
             <p className="bg-black text-white text-center p-4">
@@ -44,12 +48,39 @@ const Header = () => {
                     </div>
 
                     <div className='flex gap-4'>
-                        <Link href={"/my-orders"}>
-                            <HeaderIcon src="/ui/user-line.png" alt="Perfil" width={24} height={24} />
-                        </Link>
                         <Link href={"/cart"}>
                             <HeaderIcon src="/ui/shopping-bag-4-line.png" alt="Carrinho" width={24} height={24} />
                         </Link>
+                        {isAuthenticated ? (
+                            <>
+                                <Link href="/my-orders">
+                                    <HeaderIcon
+                                        src="/ui/user-line.png"
+                                        alt="Minha conta"
+                                        width={24}
+                                        height={24}
+                                    />
+                                </Link>
+
+                                <form action={clearAuthCookie}>
+                                    <button type="submit" aria-label="Sair" className='cursor-pointer'>
+                                        <HeaderIcon
+                                            src="/ui/logout.png"
+                                            alt="Sair"
+                                            width={24}
+                                            height={24}
+                                        />
+                                    </button>
+                                </form>
+                            </>
+                        ) : (
+                            <Link
+                                href="/login"
+                                className="text-sm font-medium text-gray-600 hover:text-black transition"
+                            >
+                                Entrar
+                            </Link>
+                        )}
                         <div className='md:hidden' onClick={toggleMenu}>
                             <HeaderIcon src="/ui/menu-line.png"
                                 alt="Menu"

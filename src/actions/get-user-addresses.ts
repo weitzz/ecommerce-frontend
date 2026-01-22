@@ -9,7 +9,7 @@ import { AxiosError } from "axios"
 
 export const getUserAddresses = async (token: string): Promise<Address[]> => {
     try {
-        const response = await api.get('/user/addresses', {
+        const response = await api.get('/me/addresses', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }

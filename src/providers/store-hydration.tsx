@@ -13,7 +13,7 @@ export const StoreHydration = () => {
             if (token != null) {
                 authStore.setToken(token)
             }
-            authStore.setHydrated(true)
+            authStore.setHydrated()
         })
         getCartState().then(({ cart }) => {
             if (cart.length > 0) {

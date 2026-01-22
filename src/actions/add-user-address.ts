@@ -9,7 +9,7 @@ import { getUserAddresses } from "./get-user-addresses"
 
 export const addUserAddress = async (token: string, address: Address): Promise<Address[]> => {
     try {
-        const response = await api.post('/user/addresses', { ...address }, {
+        const response = await api.post('/me/addresses', { ...address }, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }

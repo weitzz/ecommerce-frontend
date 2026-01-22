@@ -7,7 +7,7 @@ import { ProductComplete } from "@/types/products"
 export const getProductCategory = async (id: number) => {
 
     try {
-        const response = await api.get(`/product/${id}`)
+        const response = await api.get(`/products/${id}`)
         return {
             product: response.data.product as ProductComplete,
             category: response.data.category as Category,

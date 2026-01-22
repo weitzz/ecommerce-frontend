@@ -5,7 +5,7 @@ import { Product } from "@/types/products"
 
 export const getRelatedProducts = async (id: number) => {
     try {
-        const response = await api.get(`/product/${id}/related`, { params: { limit: 4 } })
+        const response = await api.get(`/products/${id}/related`, { params: { limit: 4 } })
         return response.data.products as Product[]
     } catch (error) {
 

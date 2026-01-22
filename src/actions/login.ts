@@ -1,9 +1,8 @@
 "use server"
 
-import { api } from "@/libs/axios"
-import { AxiosError } from "axios"
+import { apiFetch } from "@/libs/api"
 import { LoginSchema } from "@/schemas/login"
-
+import { setServerAuthToken } from "@/libs/server-cookies"
 
 
 type LoginData = {
@@ -26,6 +25,7 @@ type LoginResponse = {
 
 export async function loginAction(data: LoginData): Promise<LoginResponse> {
     const parsed = LoginSchema.safeParse(data)
+
     if (!parsed.success) {
         const fieldErrors: Record<string, string> = {}
         parsed.error.issues.forEach(issue => {
@@ -34,29 +34,28 @@ export async function loginAction(data: LoginData): Promise<LoginResponse> {
         })
         return {
             success: false,
-            errors: {
-                fieldErrors
-            }
+            errors: { fieldErrors }
         }
     }
+
     try {
-        const response = await api.post('/user/login', data)
+        const response = await apiFetch('/auth/login', {
+            method: "POST",
+            body: JSON.stringify({
+                email: parsed.data.email,
+                password: parsed.data.password
+            })
+        })
 
-        return { success: true, token: response.data.token }
+        await setServerAuthToken(response.token)
+
+        return { success: true }
+
     } catch (error) {
-        if (error instanceof AxiosError) {
-            return {
-                success: false,
-                errors: {
-                    formError: error.response?.data?.errors || 'Credenciais inválidas'
-                }
-            }
-        }
-
         return {
             success: false,
             errors: {
-                formError: 'Ocorreu um erro inesperado. Tente novamente mais tarde.'
+                formError: "Email ou senha inválidos"
             }
         }
     }

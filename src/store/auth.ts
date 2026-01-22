@@ -3,9 +3,9 @@ import { create } from "zustand"
 type AuthState = {
     hydrated: boolean
     token: string | null
-    setToken: (token: string) => void
+    setToken: (token: string | null) => void
     clearToken: () => void
-    setHydrated: (hydrated: boolean) => void
+    setHydrated: () => void
 }
 
 export const useAuthStore = create<AuthState>(set => ({
@@ -13,5 +13,5 @@ export const useAuthStore = create<AuthState>(set => ({
     token: null,
     setToken: (token) => set({ token }),
     clearToken: () => set({ token: null }),
-    setHydrated: (hydrated) => set({ hydrated }),
+    setHydrated: () => set({ hydrated: true }),
 }))

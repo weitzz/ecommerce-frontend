@@ -1,8 +1,9 @@
 "use server"
 
-import { api } from "@/libs/axios"
-import { AxiosError } from "axios"
+import { apiFetch } from "@/libs/api"
+import { HttpError } from "@/libs/Errors"
 import { RegisterSchema } from "@/schemas/register"
+
 
 type RegisterData = {
     name: string
@@ -40,34 +41,49 @@ export async function registerAction(data: RegisterData): Promise<RegisterRespon
     }
 
     try {
-        const response = await api.post('/user/register', { name: data.name, email: data.email, password: data.password })
+        const response = await apiFetch('/auth/register', {
+            method: "POST",
+            body: JSON.stringify({ name: data.name, email: data.email, password: data.password })
+        })
+
+        if (!response?.success) {
+            return {
+                success: false,
+                errors: {
+                    formError: "Erro ao registrar usuário"
+                }
+            };
+        }
         return { success: true }
 
     } catch (error) {
-        if (error instanceof AxiosError) {
-            if (error.response?.status === 409) {
+        console.error("REGISTER ERROR:", error);
+        if (error instanceof HttpError) {
+            if (error.status === 409) {
                 return {
                     success: false,
                     errors: {
                         fieldErrors: {
-                            email: 'Email já está em uso'
+                            email: "Email já está em uso"
                         }
                     }
                 }
             }
+
             return {
                 success: false,
                 errors: {
-                    formError: error.response?.data?.message ?? "Erro ao registrar usuário"
+                    formError: error.message
                 }
             }
+
         }
+
         return {
             success: false,
             errors: {
-                formError: 'Erro inesperado no servidor. Tente novamente mais tarde.'
+                formError: "Erro inesperado"
             }
         }
-
     }
 }

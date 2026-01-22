@@ -1,12 +1,9 @@
 'use client'
 import { loginAction } from '@/actions/login'
-import { setAuthCookie } from '@/actions/set-auth-cookie'
-import { useAuthStore } from '@/store/auth'
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
-import React, { startTransition, useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
+import { useState, useTransition } from 'react'
 import { Input } from '../ui/input'
-
 
 type Errors = {
     fieldErrors?: {
@@ -17,46 +14,42 @@ type Errors = {
 }
 
 const LoginForm = () => {
-    const [form, setForm] = useState({ email: '', password: '' })
-    const [errors, setErrors] = useState<Errors>({})
-    const [pending, setPending] = useTransition()
-    const authStore = useAuthStore(state => state)
+    const [error, setError] = useState<Errors | null>(null)
+    const [isPending, startTransition] = useTransition()
+    const router = useRouter()
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setForm(form => ({ ...form, [e.target.name]: e.target.value }))
-        setErrors(errors => ({ ...errors, fieldErrors: { ...errors.fieldErrors, [e.target.name]: undefined }, formError: undefined }))
-    }
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
+    const handleSubmit = async (formData: FormData) => {
+        setError(null)
         startTransition(async () => {
-            const result = await loginAction(form)
+            const result = await loginAction({
+                email: formData.get("email") as string,
+                password: formData.get("password") as string
+            })
+            console.log(result)
+
             if (!result.success) {
-                setErrors(result.errors || {})
+                setError(result.errors ?? null)
                 return
             }
-            if (result.token) {
-                await setAuthCookie(result.token)
-                authStore.setToken(result.token)
-                redirect('/')
-            }
+
+            router.push("/")
         })
     }
 
 
     return (
-        <form onSubmit={handleSubmit} className='bg-white border border-gray-200 p-8 rounded-sm'>
+        <form action={handleSubmit} className='bg-white border border-gray-200 p-8 rounded-sm'>
             <h2 className='text-xl font-bold mb-4'>Login</h2>
             <div className='mb-4'>
                 <Input
                     label='Email'
                     type='email'
                     name='email'
-                    value={form.email}
-                    onChange={handleChange}
                     className='w-full py-2 px-3'
-                    error={errors.fieldErrors?.email}
-                    disabled={pending} />
+                    disabled={isPending}
+                    error={error?.fieldErrors?.email}
+                />
 
             </div>
             <div className='mb-4'>
@@ -64,17 +57,15 @@ const LoginForm = () => {
                     label='Senha'
                     type='password'
                     name='password'
-                    value={form.password}
-                    onChange={handleChange}
                     className='w-full py-2 px-3 '
-                    error={errors.fieldErrors?.password}
-                    disabled={pending}
+                    disabled={isPending}
+                    error={error?.fieldErrors?.password}
                 />
             </div>
-            <button type='submit' className='w-full bg-blue-600 text-white py-2 rounded-sm cursor-pointer' disabled={pending}>
-                {pending ? 'Logging in...' : 'Login'}
+            <button type='submit' className='w-full bg-blue-600 text-white py-2 rounded-sm cursor-pointer' disabled={isPending}>
+                {isPending ? 'Logging in...' : 'Login'}
             </button>
-            {errors.formError && (<p className='text-red-500 text-sm mt-2'>{errors.formError}</p>)}
+            {error?.formError && (<p className='text-red-500 text-sm mt-2'>{error?.formError}</p>)}
             <div className='text-center mt-4'>
                 <Link href='/register' className='text-gray-500 text-sm'>Não tem uma conta? Cadastre-se</Link>
             </div>

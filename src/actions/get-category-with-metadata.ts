@@ -10,7 +10,7 @@ type CategoryWithMetadata = {
 
 export const getCategoryWithMetadata = async (slug: string) => {
     try {
-        const response = await api.get(`/category/${slug}/metadata`)
+        const response = await api.get(`/categories/${slug}/metadata`)
         console.log(response.data.metadata);
         return response.data as CategoryWithMetadata
     } catch (error) {
