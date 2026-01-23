@@ -1,11 +1,17 @@
 import { getCartState } from '@/actions/get-cart-state'
 import { getProductsFromList } from '@/actions/get-products-from-list'
 import { CartContainer } from '@/components/cart/cart-container'
+import { getServerAuthToken } from '@/libs/server-cookies'
 import { CartListItem } from '@/types/cart-list-item'
 import { redirect } from 'next/navigation'
 
 
 const Page = async () => {
+    const token = await getServerAuthToken();
+
+    if (!token) {
+        redirect("/login");
+    }
     const { cart: initialCart } = await getCartState()
 
     if (initialCart.length === 0) {

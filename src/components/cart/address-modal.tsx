@@ -1,21 +1,19 @@
+import { AddressSchema } from '@/schemas/address'
 import { Address } from '@/types/address'
-import React, { startTransition, useState, useTransition } from 'react'
-import z from 'zod'
+import React, { useState, useTransition } from 'react'
+import { Input } from '../ui/input'
 
-const schema = z.object({
-    zipcode: z.string().min(5, "O CEP deve ter no mínimo 5 caracteres"),
-    street: z.string().min(1, "O logradouro é obrigatório"),
-    number: z.string().min(1, "O número é obrigatório"),
-    complement: z.string().optional(),
-    city: z.string().min(1, "A cidade é obrigatória"),
-    state: z.string().min(2, "O estado é obrigatório"),
-})
 
 type Props = {
     open: boolean
     onClose: () => void
-    onAdd: (address: Address) => Promise<void>
+    onAdd: (address: Address) => Promise<{ success: boolean; errors?: any }>
 }
+
+type Errors = {
+    fieldErrors?: Partial<Record<keyof Address, string>>;
+    formError?: string;
+};
 
 export const AddressModal = ({ open, onClose, onAdd }: Props) => {
     let emptyAddress: Address = {
@@ -27,121 +25,132 @@ export const AddressModal = ({ open, onClose, onAdd }: Props) => {
         country: '',
         complement: '',
     }
-    const [form, setForm] = useState<Address>(emptyAddress)
-    const [errors, setErrors] = useState<string>('')
-    const [pending, setPending] = useTransition()
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        const result = schema.safeParse(form)
+    const [error, setError] = useState<Errors | null>(null);
+    const [isPending, startTransition] = useTransition();
+    const handleSubmit = (formData: FormData) => {
+
+        setError(null)
+
+        const address: Address = {
+            zipcode: (formData.get("zipcode") as string) || "",
+            street: (formData.get("street") as string) || "",
+            number: (formData.get("number") as string) || "",
+            city: (formData.get("city") as string) || "",
+            state: (formData.get("state") as string) || "",
+            country: (formData.get("country") as string) || "",
+            complement: (formData.get("complement") as string) || "",
+        };
+
+        const result = AddressSchema.safeParse(address)
         if (!result.success) {
-            setErrors(result.error.issues[0]?.message || 'Preencha todos os campos corretamente')
+            const fieldErrors: Errors["fieldErrors"] = {};
+            result.error.issues.forEach(issue => {
+                const key = issue.path[0] as keyof Address
+                fieldErrors[key] = issue.message
+            })
+            setError({ fieldErrors })
             return
         }
-        setErrors('')
+
         startTransition(async () => {
             try {
-                await onAdd(form)
-                setForm(emptyAddress)
+                const result = await onAdd(address);
+
+                if (!result.success) {
+                    setError(result.errors ?? { formError: "Erro ao salvar endereço" });
+                    return;
+                }
+                onClose()
+
             } catch (err: any) {
-                setErrors(err.message || 'Erro ao salvar o endereço')
+                setError({ formError: err.message || "Erro ao salvar endereço" });
             }
         })
     }
 
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setForm({ ...form, [e.target.name]: e.target.value })
-    }
+
     if (!open) return null
     return (
-        <div className='fixed inset-0 flex justify-center items-center bg-black/50 z-50'>
-            <button disabled={pending} className='absolute top-2 right-4 text-4xl cursor-pointer text-white' onClick={onClose}>&times;</button>
+        <div className='fixed inset-0 flex justify-center items-center bg-black/50 z-50 p-4'>
+            <button disabled={isPending} className='absolute top-2 right-4 text-4xl cursor-pointer text-white' onClick={onClose}>&times;</button>
             <div
                 className='bg-white p-6 rounded w-full max-w-md'>
                 <h2 className='text-2xl font-bold mb-4'>Adicionar endereço</h2>
-                <form onSubmit={handleSubmit} className='flex flex-col gap-2'>
-                    <input
+                <form action={handleSubmit} className='flex flex-col gap-4'>
+                    <Input
                         autoFocus
+                        placeholder='Digite o CEP'
                         type='text'
                         name='zipcode'
-                        placeholder='Digite o CEP'
-                        value={form.zipcode}
-                        onChange={handleChange}
-                        className='w-full py-2 px-3 border rounded-sm border-gray-200'
-                        disabled={pending}
+                        className='w-full  '
+                        disabled={isPending}
+                        error={error?.fieldErrors?.zipcode}
                     />
-                    {/* {errors.zipcode && <p className='text-red-500 text-sm mt-1'>{errors.zipcode}</p>} */}
-                    <div className='flex flex-row gap-2'>
-
-                        <input
-
+                    <div className='flex flex-col md:flex-row gap-2'>
+                        <Input
+                            placeholder='Digite a Rua'
                             type='text'
                             name='street'
-                            placeholder='Digite a Rua'
-                            value={form.street}
-                            onChange={handleChange}
-                            className='w-full py-2 px-3 border rounded-sm border-gray-200'
-                            disabled={pending}
+                            className='w-full flex-1'
+                            disabled={isPending}
+                            error={error?.fieldErrors?.street}
                         />
-                        <input
-
+                        <Input
+                            placeholder='Digite o número'
                             type='text'
                             name='number'
-                            placeholder='Digite o número'
-                            value={form.number}
-                            onChange={handleChange}
-                            className='w-full py-2 px-3 border rounded-sm border-gray-200'
-                            disabled={pending}
+                            className='w-full flex-1'
+                            disabled={isPending}
+                            error={error?.fieldErrors?.number}
                         />
                     </div>
-                    <div className='flex gap-2'>
-
-                        <input
-
+                    <div className='flex flex-col md:flex-row gap-2'>
+                        <Input
+                            placeholder='Digite a Cidade'
                             type='text'
                             name='city'
-                            placeholder='Digite a Cidade'
-                            value={form.city}
-                            onChange={handleChange}
-                            className='w-full py-2 px-3 border rounded-sm border-gray-200'
-                            disabled={pending}
+                            className='w-full flex-1 '
+                            disabled={isPending}
+                            error={error?.fieldErrors?.city}
                         />
-                        <input
-
+                        <Input
+                            placeholder='Digite o Estado'
                             type='text'
                             name='state'
-                            placeholder='Digite o Estado'
-                            value={form.state}
-                            onChange={handleChange}
-                            className='w-full py-2 px-3 border rounded-sm border-gray-200'
-                            disabled={pending}
+                            className='w-full flex-1'
+                            disabled={isPending}
+                            error={error?.fieldErrors?.state}
                         />
                     </div>
-                    <input
-
+                    <Input
+                        placeholder='Digite o País'
                         type='text'
                         name='country'
-                        placeholder='Digite o País'
-                        value={form.country}
-                        onChange={handleChange}
-                        className='w-full py-2 px-3 border rounded-sm border-gray-200'
-                        disabled={pending}
+                        className='w-full  '
+                        disabled={isPending}
+                        error={error?.fieldErrors?.country}
                     />
-                    <input
-
+                    <Input
+                        placeholder='Digite o Complemento'
                         type='text'
                         name='complement'
-                        placeholder='Digite o Complemento'
-                        value={form.complement}
-                        onChange={handleChange}
-                        className='w-full py-2 px-3 border rounded-sm border-gray-200'
-                        disabled={pending}
+                        className='  '
+                        disabled={isPending}
+                        error={error?.fieldErrors?.complement}
                     />
-                    <button type='submit'
-                        className='w-full bg-blue-600 text-white p-4 rounded-sm cursor-pointer'
-                        disabled={pending}>
-                        {pending ? 'Salvando...' : 'Adicionar'}
-                    </button>
+                    {error?.formError && (
+                        <p className="text-red-500 text-sm">{error.formError}</p>
+                    )}
+                    <div className='flex flex-col md:flex-row gap-2'>
+
+                        <button type="button" className='w-full bg-gray-600 text-white p-4 rounded-sm cursor-pointer flex-1' onClick={onClose}>Voltar</button>
+                        <button type='submit'
+                            className='w-full bg-blue-600 text-white p-4 rounded-sm cursor-pointer flex-1'
+                            disabled={isPending}>
+                            {isPending ? 'Salvando...' : 'Adicionar'}
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>

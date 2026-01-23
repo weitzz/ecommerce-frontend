@@ -1,31 +1,86 @@
 "use server"
 
-
-import { api } from "@/libs/axios"
+import { apiFetch } from "@/libs/api"
 import { Address } from "@/types/address"
-import { AxiosError } from "axios"
+
 import { getUserAddresses } from "./get-user-addresses"
+import { HttpError } from "@/libs/Errors"
+import { AddressSchema } from "@/schemas/address"
 
-
-export const addUserAddress = async (token: string, address: Address): Promise<Address[]> => {
-    try {
-        const response = await api.post('/me/addresses', { ...address }, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
-        return getUserAddresses(token)
-    } catch (error) {
-        if (error instanceof AxiosError) {
-            console.error('Erro Axios:', {
-                status: error.response?.status,
-                data: error.response?.data,
-            })
-        }
-        else {
-            console.error('Erro inesperado:', error)
-        }
-
-        throw new Error('Erro ao cadastrar endereços do usuário')
+export type ActionResult = {
+    success: boolean,
+    data?: Address[]
+    errors?: {
+        fieldErrors?: Partial<Record<keyof Address, string>>
+        formError?: string
     }
 }
+
+
+
+
+
+
+export const addUserAddress = async (token: string, address: Address): Promise<ActionResult> => {
+    const parsed = AddressSchema.safeParse(address)
+    if (!parsed.success) {
+        const fieldErrors: Partial<Record<keyof Address, string>> = {}
+
+        parsed.error.issues.forEach(issue => {
+            const field = issue.path[0] as keyof Address
+            fieldErrors[field] = issue.message
+        })
+
+        return {
+            success: false,
+            errors: { fieldErrors }
+        }
+    }
+
+    try {
+        await apiFetch('/me/addresses', {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(parsed.data),
+        })
+
+
+        console.log(JSON.stringify(parsed.data))
+
+        const addresses = await getUserAddresses(token)
+
+        console.log(addresses)
+
+        return {
+            success: true,
+            data: addresses,
+        }
+
+
+
+    } catch (error) {
+        console.error("ADD ADDRESS ERROR:", error)
+        if (error instanceof HttpError) {
+
+            return {
+                success: false,
+                errors: {
+                    formError: error.message || "Erro ao cadastrar endereço"
+                }
+            };
+        }
+
+        return {
+            success: false,
+            errors: {
+                formError: 'Erro interno ao cadastrar endereço'
+            }
+        }
+    }
+
+}
+
+

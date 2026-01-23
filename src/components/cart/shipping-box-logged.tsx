@@ -4,7 +4,6 @@ import { getUserAddresses } from '@/actions/get-user-addresses'
 import { useAuthStore } from '@/store/auth'
 import { useCartStore } from '@/store/cartStore'
 import { Address } from '@/types/address'
-import { stat } from 'fs'
 import React, { useEffect, useState, useTransition } from 'react'
 import { AddressModal } from './address-modal'
 import { addUserAddress } from '@/actions/add-user-address'
@@ -13,7 +12,7 @@ export const ShippingBoxLogged = () => {
     const { token, hydrated } = useAuthStore(state => state)
     const cartStore = useCartStore(state => state)
     const [addresses, setAddresses] = useState<Address[]>([])
-    const [peding, startTransition] = useTransition()
+    const [isPeding, startTransition] = useTransition()
     const [modalOpen, setModalOpen] = useState(false)
 
     useEffect(() => {
@@ -53,15 +52,27 @@ export const ShippingBoxLogged = () => {
         }
 
     }
-    const handleAddAddress = async (address: Address) => {
-        if (!token) return
-        const newAddress = await addUserAddress(token, address)
-        if (newAddress) {
-            setAddresses(newAddress)
-            setModalOpen(false)
+    const handleAddAddress = async (
+        address: Address
+    ): Promise<{ success: boolean; errors?: any }> => {
+        if (!token) {
+            return { success: false, errors: { formError: "Usuário não autenticado" } }
         }
-    }
 
+        const result = await addUserAddress(token!, address)
+
+        if (!result.success) {
+            return {
+                success: false,
+                errors: result.errors?.fieldErrors ?? { formError: result.errors?.formError }
+            }
+        }
+
+        setAddresses(result.data!)
+        setModalOpen(false)
+
+        return { success: true }
+    }
     return (
         <div className='flex flex-col gap-4'>
             <select

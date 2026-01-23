@@ -46,7 +46,7 @@ const LoginForm = () => {
                     label='Email'
                     type='email'
                     name='email'
-                    className='w-full py-2 px-3'
+                    className='w-full'
                     disabled={isPending}
                     error={error?.fieldErrors?.email}
                 />
@@ -57,7 +57,7 @@ const LoginForm = () => {
                     label='Senha'
                     type='password'
                     name='password'
-                    className='w-full py-2 px-3 '
+                    className='w-full'
                     disabled={isPending}
                     error={error?.fieldErrors?.password}
                 />

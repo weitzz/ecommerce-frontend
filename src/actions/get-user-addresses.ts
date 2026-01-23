@@ -1,31 +1,34 @@
 "use server"
 
-import { api } from "@/libs/axios"
+import { apiFetch } from "@/libs/api"
 import { Address } from "@/types/address"
-import { AxiosError } from "axios"
-
-
 
 
 export const getUserAddresses = async (token: string): Promise<Address[]> => {
     try {
-        const response = await api.get('/me/addresses', {
+        const result = await apiFetch('/me/addresses', {
             headers: {
-                'Authorization': `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             }
         })
-        return response.data.addresses as Address[]
-    } catch (error) {
-        if (error instanceof AxiosError) {
-            console.error('Erro Axios:', {
-                status: error.response?.status,
-                data: error.response?.data,
-            })
-        }
-        else {
-            console.error('Erro inesperado:', error)
+
+        if (Array.isArray(result)) {
+            return result
         }
 
-        throw new Error('Erro ao buscar endereços do usuário')
+        if (result?.addresses && Array.isArray(result.addresses)) {
+            return result.addresses
+        }
+
+        if (result?.data && Array.isArray(result.data)) {
+            return result.data
+        }
+
+
+        return []
+
+    } catch (error) {
+        console.error('Erro ao buscar endereços:', error)
+        return []
     }
 }
