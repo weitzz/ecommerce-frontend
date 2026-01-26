@@ -8,6 +8,7 @@ type ProductFilter = {
     orderBy?: 'views' | 'selling' | 'price'
     limit?: number
     search?: string
+    page?: number
 }
 
 
@@ -35,7 +36,7 @@ export const getProducts = async (
 
     try {
         const response = await api.get("/products", { params })
-        return response.data.products as Product[]
+        return response.data.data as Product[]
     } catch (error) {
         console.error("[getProducts]", error)
         return []
