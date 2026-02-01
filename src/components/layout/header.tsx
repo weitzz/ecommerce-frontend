@@ -78,7 +78,12 @@ const Header = ({ isAuthenticated }: HeaderProps) => {
                                 href="/login"
                                 className="text-sm font-medium text-gray-600 hover:text-black transition"
                             >
-                                Entrar
+                                <HeaderIcon
+                                    src="/ui/logout-box.png"
+                                    alt="Sair"
+                                    width={24}
+                                    height={24}
+                                />
                             </Link>
                         )}
                         <div className='md:hidden' onClick={toggleMenu}>

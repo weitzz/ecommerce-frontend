@@ -3,6 +3,8 @@
 import { apiFetch } from "@/libs/api"
 import { LoginSchema } from "@/schemas/login"
 import { setServerAuthToken } from "@/libs/server-cookies"
+import { zodToFieldErrors } from "@/libs/errors/zod"
+import { ActionResult } from "@/libs/actions/types"
 
 
 type LoginData = {
@@ -10,53 +12,47 @@ type LoginData = {
     password: string
 }
 
-type LoginResponse = {
-    success: boolean
-    token?: string
-    errors?: {
-        fieldErrors?: {
-            email?: string
-            password?: string
-        }
-        formError?: string
-    }
+type LoginApiResponse = {
+    token: string
 }
 
+export type LoginResponse = ActionResult<void, LoginData>
 
-export async function loginAction(data: LoginData): Promise<LoginResponse> {
-    const parsed = LoginSchema.safeParse(data)
+
+export async function loginAction(prevState: LoginResponse,
+    formData: FormData): Promise<LoginResponse> {
+
+    const parsed = LoginSchema.safeParse({
+        email: formData.get("email") as string,
+        password: formData.get("password") as string
+    })
+
 
     if (!parsed.success) {
-        const fieldErrors: Record<string, string> = {}
-        parsed.error.issues.forEach(issue => {
-            const field = issue.path[0] as string
-            fieldErrors[field] = issue.message
-        })
         return {
             success: false,
-            errors: { fieldErrors }
+            errors: { fieldErrors: zodToFieldErrors(parsed.error) }
         }
     }
 
-    try {
-        const response = await apiFetch('/auth/login', {
-            method: "POST",
-            body: JSON.stringify({
-                email: parsed.data.email,
-                password: parsed.data.password
-            })
-        })
+    const response = await apiFetch<LoginApiResponse>('/auth/login', {
+        method: "POST",
+        skipAuth: true,
+        body: JSON.stringify(parsed.data)
+    })
 
-        await setServerAuthToken(response.token)
-
-        return { success: true }
-
-    } catch (error) {
+    if (!response.ok) {
         return {
             success: false,
             errors: {
-                formError: "Email ou senha inválidos"
+                formError: response.error.data?.message ?? "Email ou senha inválidos"
             }
         }
     }
+
+    await setServerAuthToken(response.data.token)
+
+    return { success: true }
+
+
 }

@@ -9,9 +9,13 @@ import { Suspense } from "react";
 
 export default async function Home() {
   const banners = await getBanners()
+
+  if (!banners.ok) {
+    return null
+  }
   return (
     <>
-      <Banners list={banners} />
+      <Banners list={banners.data} />
       <section className="flex flex-col md:flex-row gap-4 md:gap-8 mt-6 md:mt-12">
         <div className=" flex flex-1 py-6 border border-gray-200 rounded-sm">
           <div className="w-32 border-r border-gray-200 flex justify-center items-center">

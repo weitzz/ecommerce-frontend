@@ -6,6 +6,8 @@ type Props = {
 }
 
 function ProductList({ list }: Props) {
+
+    console.log(list.data)
     return (
         <div className='grid grid-cols-1 md:grid-cols-4 gap-8'>
             {list.map(item => (

@@ -3,7 +3,7 @@ import { Product } from "@/types/products"
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
-import { ButtonLiked } from "../button-liked"
+import { ButtonLiked } from "../ui/button-liked"
 
 type Props = {
     data: Product

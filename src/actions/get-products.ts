@@ -1,8 +1,8 @@
 "use server"
 
-import { api } from "@/libs/axios"
-import { Product } from "@/types/products"
-
+import type { Product } from "@/types/products"
+import { apiFetch } from "@/libs/api"
+import type { ReadResult } from "@/libs/actions/types"
 type ProductFilter = {
     metadata?: Record<string, string[]>
     orderBy?: 'views' | 'selling' | 'price'
@@ -11,34 +11,52 @@ type ProductFilter = {
     page?: number
 }
 
+type GetProductsResponse = {
+    success: boolean
+    data: Product[]
+}
+
+
 
 export const getProducts = async (
-    filters: ProductFilter
-): Promise<Product[]> => {
-    const params: Record<string, string | number> = {}
+    filters: ProductFilter = {}
+): Promise<ReadResult<Product[]>> => {
+    const params = new URLSearchParams()
 
     if (filters.metadata) {
-        params.metadata = JSON.stringify(filters.metadata)
+        params.set("metadata", JSON.stringify(filters.metadata))
     }
 
     if (filters.orderBy) {
-        params.orderBy = filters.orderBy
-    } else {
-        params.orderBy
+        params.set("orderBy", filters.orderBy)
     }
 
     if (typeof filters.limit === "number") {
-        params.limit = filters.limit
-    }
-    if (filters.search) {
-        params.search = filters.search
+        params.set("limit", String(filters.limit))
     }
 
-    try {
-        const response = await api.get("/products", { params })
-        return response.data.data as Product[]
-    } catch (error) {
-        console.error("[getProducts]", error)
-        return []
+    if (filters.search) {
+        params.set("search", filters.search)
+    }
+
+    if (typeof filters.page === "number") {
+        params.set("page", String(filters.page))
+    }
+
+    const result = await apiFetch<GetProductsResponse>(
+        `/products?${params.toString()}`
+    )
+
+    if (!result.ok) {
+        console.error("[getProducts]", result.error)
+        return {
+            ok: false,
+            error: result.error
+        }
+    }
+
+    return {
+        ok: true,
+        data: result.data.data
     }
 }

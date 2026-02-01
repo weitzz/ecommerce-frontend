@@ -2,7 +2,7 @@
 import React from 'react'
 import Image from 'next/image'
 import { ProductComplete } from '@/types/products'
-import { ButtonLiked } from '../button-liked'
+import { ButtonLiked } from '../ui/button-liked'
 import { data } from '@/data'
 import { useCartStore } from '@/store/cartStore'
 import { setCartState } from '@/actions/set-cart-state'

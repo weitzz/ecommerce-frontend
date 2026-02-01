@@ -1,19 +1,26 @@
 "use server"
-import { api } from "@/libs/axios"
+import { apiFetch } from "@/libs/api"
 import { Banner } from "@/types/banner"
+import type { ReadResult } from "@/libs/actions/types"
 
 
-export const getBanners = async () => {
-    try {
-        const response = await api.get('/banners')
-        if (response.status === 200) {
+type GetBannersApiResponse = {
+    data: Banner[]
+}
 
-            return response.data.banners as Banner[]
+export const getBanners = async (): Promise<ReadResult<Banner[]>> => {
 
+    const response = await apiFetch<GetBannersApiResponse>("/banners")
+
+    if (!response.ok) {
+        console.error('getBanners', response.error)
+        return {
+            ok: false,
+            error: response.error
         }
-        return []
-    } catch (error) {
-        console.log(error)
     }
-    return []
+    return {
+        ok: true,
+        data: response.data.data
+    }
 }

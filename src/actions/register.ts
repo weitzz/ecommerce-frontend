@@ -1,8 +1,9 @@
 "use server"
 
 import { apiFetch } from "@/libs/api"
-import { HttpError } from "@/libs/Errors"
 import { RegisterSchema } from "@/schemas/register"
+import { zodToFieldErrors } from "@/libs/errors/zod"
+import { ActionResult } from "@/libs/actions/types"
 
 
 type RegisterData = {
@@ -12,78 +13,40 @@ type RegisterData = {
     confirmPassword: string
 }
 
-type RegisterResponse = {
-    success: boolean
-    errors?: {
-        fieldErrors?: {
-            name?: string
-            email?: string
-            password?: string
-            confirmPassword?: string
-        }
-        formError?: string
-    }
-}
+export type RegisterResponse = ActionResult<void, RegisterData>
 
-export async function registerAction(data: RegisterData): Promise<RegisterResponse> {
-    const parsed = RegisterSchema.safeParse(data)
+
+export async function registerAction(prevState: RegisterResponse, formData: FormData): Promise<RegisterResponse> {
+
+    const parsed = RegisterSchema.safeParse({
+        name: formData.get('name') as string,
+        email: formData.get("email") as string,
+        password: formData.get("password") as string,
+        confirmPassword: formData.get('confirmPassword') as string
+    })
+
     if (!parsed.success) {
-        const fieldErrors: Record<string, string> = {}
-
-        parsed.error.issues.forEach(issue => {
-            const field = issue.path[0] as string
-            fieldErrors[field] = issue.message
-        })
         return {
             success: false,
-            errors: { fieldErrors }
+            errors: { fieldErrors: zodToFieldErrors(parsed.error) }
         }
     }
 
-    try {
-        const response = await apiFetch('/auth/register', {
-            method: "POST",
-            body: JSON.stringify({ name: data.name, email: data.email, password: data.password })
-        })
 
-        if (!response?.success) {
-            return {
-                success: false,
-                errors: {
-                    formError: "Erro ao registrar usuário"
-                }
-            };
-        }
-        return { success: true }
+    const response = await apiFetch<RegisterResponse>('/auth/register', {
+        method: "POST",
+        body: JSON.stringify(parsed.data)
+    })
 
-    } catch (error) {
-        console.error("REGISTER ERROR:", error);
-        if (error instanceof HttpError) {
-            if (error.status === 409) {
-                return {
-                    success: false,
-                    errors: {
-                        fieldErrors: {
-                            email: "Email já está em uso"
-                        }
-                    }
-                }
-            }
-
-            return {
-                success: false,
-                errors: {
-                    formError: error.message
-                }
-            }
-
-        }
-
+    if (!response?.ok) {
         return {
             success: false,
             errors: {
-                formError: "Erro inesperado"
+                formError: response.error.data?.message ?? "Erro ao registrar usuário"
             }
-        }
+        };
     }
+    return { success: true }
+
+
 }

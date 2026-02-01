@@ -2,19 +2,10 @@
 
 import { apiFetch } from "@/libs/api"
 import { Address } from "@/types/address"
-
 import { getUserAddresses } from "./get-user-addresses"
-import { HttpError } from "@/libs/Errors"
 import { AddressSchema } from "@/schemas/address"
-
-export type ActionResult = {
-    success: boolean,
-    data?: Address[]
-    errors?: {
-        fieldErrors?: Partial<Record<keyof Address, string>>
-        formError?: string
-    }
-}
+import { zodToFieldErrors } from "@/libs/errors/zod"
+import { ActionResult } from "@/libs/actions/types"
 
 
 

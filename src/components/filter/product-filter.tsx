@@ -61,14 +61,19 @@ const ProductFilter = ({ category, metadata, filters }: Props) => {
         const metadata = normalizeFilters(filters)
 
         setLoading(true)
-        console.log("Filtros enviados:", metadata, order)
         const result = await getProducts({
             limit: 9,
             metadata: metadata,
             orderBy: order
         })
 
-        setProducts(result)
+        if (!result.ok) {
+            console.error("Erro ao buscar produtos", result.error)
+            setProducts([])
+            setLoading(false)
+            return
+        }
+        setProducts(result.data)
         setLoading(false)
     }
 
@@ -76,8 +81,6 @@ const ProductFilter = ({ category, metadata, filters }: Props) => {
         fetchProducts(filters)
     }, [filters, order])
 
-
-    console.log(metadata)
     return (
         <>
             <div className="flex flex-col md:flex-row  gap-6 justify-between items-start md:items-center">

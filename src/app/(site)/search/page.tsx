@@ -19,7 +19,7 @@ export default async function SearchPage({ searchParams }: Props) {
                 Resultados para "{query}"
             </h1>
 
-            <ProductList list={products} />
+            <ProductList list={products.data} />
         </div>
     )
 }

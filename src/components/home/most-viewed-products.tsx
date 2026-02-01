@@ -21,7 +21,7 @@ export const MostViewedProducts = async () => {
             </div>
 
             <div className="mt-9">
-                <ProductList list={products} />
+                <ProductList list={products.data} />
             </div>
 
             <div className="mt-6 text-center md:hidden">

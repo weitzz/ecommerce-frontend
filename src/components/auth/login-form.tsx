@@ -1,45 +1,28 @@
 'use client'
 import { loginAction } from '@/actions/login'
+import type { LoginResponse } from '@/actions/login'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState, useTransition } from 'react'
+import { useEffect, useActionState } from 'react'
 import { Input } from '../ui/input'
+import { SubmitButton } from '../ui/button-submit'
 
-type Errors = {
-    fieldErrors?: {
-        email?: string
-        password?: string
-    }
-    formError?: string
-}
+
+const initialState: LoginResponse = { success: false, errors: {} }
 
 const LoginForm = () => {
-    const [error, setError] = useState<Errors | null>(null)
-    const [isPending, startTransition] = useTransition()
     const router = useRouter()
+    const [state, formAction] = useActionState(loginAction, initialState)
 
-
-    const handleSubmit = async (formData: FormData) => {
-        setError(null)
-        startTransition(async () => {
-            const result = await loginAction({
-                email: formData.get("email") as string,
-                password: formData.get("password") as string
-            })
-            console.log(result)
-
-            if (!result.success) {
-                setError(result.errors ?? null)
-                return
-            }
-
+    useEffect(() => {
+        if (state.success) {
             router.push("/")
-        })
-    }
+        }
+    }, [state.success, router])
 
 
     return (
-        <form action={handleSubmit} className='bg-white border border-gray-200 p-8 rounded-sm'>
+        <form action={formAction} className='bg-white border border-gray-200 p-8 rounded-sm'>
             <h2 className='text-xl font-bold mb-4'>Login</h2>
             <div className='mb-4'>
                 <Input
@@ -47,8 +30,7 @@ const LoginForm = () => {
                     type='email'
                     name='email'
                     className='w-full'
-                    disabled={isPending}
-                    error={error?.fieldErrors?.email}
+                    error={state.success ? undefined : state.errors?.fieldErrors?.email}
                 />
 
             </div>
@@ -58,16 +40,18 @@ const LoginForm = () => {
                     type='password'
                     name='password'
                     className='w-full'
-                    disabled={isPending}
-                    error={error?.fieldErrors?.password}
+                    error={state.success ? undefined : state.errors?.fieldErrors?.password}
                 />
             </div>
-            <button type='submit' className='w-full bg-blue-600 text-white py-2 rounded-sm cursor-pointer' disabled={isPending}>
-                {isPending ? 'Logging in...' : 'Login'}
-            </button>
-            {error?.formError && (<p className='text-red-500 text-sm mt-2'>{error?.formError}</p>)}
+            <SubmitButton label="Login"
+                pendingLabel="Entrando..." />
+            {!state.success && state.errors?.formError && (
+                <p className="text-red-500 text-sm mt-2">
+                    {state.errors.formError}
+                </p>
+            )}
             <div className='text-center mt-4'>
-                <Link href='/register' className='text-gray-500 text-sm'>Não tem uma conta? Cadastre-se</Link>
+                <Link href='/register' className='text-blue-600 text-sm'>Não tem uma conta? Cadastre-se</Link>
             </div>
         </form>
     )
