@@ -14,7 +14,7 @@ export default async function Page({ params, searchParams }: Props) {
     const filters = await searchParams
     const categoryWithMetadata = await getCategoryWithMetadata(slug)
 
-    if (!categoryWithMetadata.ok) {
+    if (!categoryWithMetadata.success) {
         return notFound()
     }
 

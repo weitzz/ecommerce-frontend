@@ -5,7 +5,7 @@ import { getProducts } from "@/actions/get-products"
 
 export const MostSoldProducts = async () => {
     const products = await getProducts({ orderBy: 'selling', limit: 4 })
-    console.log(products)
+
     return (
         <div className="mt-10">
             <div className=" flex  items-center justify-between">
@@ -22,7 +22,7 @@ export const MostSoldProducts = async () => {
             </div>
 
             <div className="mt-9">
-                <ProductList list={products.data} />
+                <ProductList list={products} />
             </div>
             <div className="mt-6 text-center md:hidden">
                 <Link

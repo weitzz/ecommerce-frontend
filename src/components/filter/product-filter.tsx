@@ -61,20 +61,21 @@ const ProductFilter = ({ category, metadata, filters }: Props) => {
         const metadata = normalizeFilters(filters)
 
         setLoading(true)
-        const result = await getProducts({
-            limit: 9,
-            metadata: metadata,
-            orderBy: order
-        })
 
-        if (!result.ok) {
-            console.error("Erro ao buscar produtos", result.error)
+        try {
+            const products = await getProducts({
+                limit: 9,
+                metadata,
+                orderBy: order,
+            })
+
+            setProducts(products)
+        } catch (error) {
+            console.error("Erro ao buscar produtos", error)
             setProducts([])
+        } finally {
             setLoading(false)
-            return
         }
-        setProducts(result.data)
-        setLoading(false)
     }
 
     useEffect(() => {

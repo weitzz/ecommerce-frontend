@@ -1,91 +1,53 @@
-import { AddressSchema } from '@/schemas/address'
 import { Address } from '@/types/address'
-import React, { useState, useTransition } from 'react'
+import { useEffect, useActionState } from 'react'
 import { Input } from '../ui/input'
+import { SubmitButton } from '../ui/button-submit'
+import { AddAddressResponse, addUserAddress } from '@/actions/add-user-address'
 
 
 type Props = {
     open: boolean
     onClose: () => void
-    onAdd: (address: Address) => Promise<{ success: boolean; errors?: any }>
+    onSuccess: (addresses: Address[]) => void
 }
 
-type Errors = {
-    fieldErrors?: Partial<Record<keyof Address, string>>;
-    formError?: string;
-};
+const initialState: AddAddressResponse = {
+    success: false,
+    errors: {}
+}
 
-export const AddressModal = ({ open, onClose, onAdd }: Props) => {
-    let emptyAddress: Address = {
-        zipcode: '',
-        street: '',
-        number: '',
-        city: '',
-        state: '',
-        country: '',
-        complement: '',
-    }
-    const [error, setError] = useState<Errors | null>(null);
-    const [isPending, startTransition] = useTransition();
-    const handleSubmit = (formData: FormData) => {
+export const AddressModal = ({ open, onClose, onSuccess }: Props) => {
+    const [state, formAction] = useActionState(addUserAddress, initialState)
 
-        setError(null)
-
-        const address: Address = {
-            zipcode: (formData.get("zipcode") as string) || "",
-            street: (formData.get("street") as string) || "",
-            number: (formData.get("number") as string) || "",
-            city: (formData.get("city") as string) || "",
-            state: (formData.get("state") as string) || "",
-            country: (formData.get("country") as string) || "",
-            complement: (formData.get("complement") as string) || "",
-        };
-
-        const result = AddressSchema.safeParse(address)
-        if (!result.success) {
-            const fieldErrors: Errors["fieldErrors"] = {};
-            result.error.issues.forEach(issue => {
-                const key = issue.path[0] as keyof Address
-                fieldErrors[key] = issue.message
-            })
-            setError({ fieldErrors })
-            return
+    useEffect(() => {
+        if (state.success) {
+            onSuccess(state.data!)
+            onClose()
         }
 
-        startTransition(async () => {
-            try {
-                const result = await onAdd(address);
+        if (!state.success && state.errors?.formError === "Faça login para adicionar um endereço") {
+            onClose()
+        }
+    }, [state, onClose, onSuccess])
 
-                if (!result.success) {
-                    setError(result.errors ?? { formError: "Erro ao salvar endereço" });
-                    return;
-                }
-                onClose()
-
-            } catch (err: any) {
-                setError({ formError: err.message || "Erro ao salvar endereço" });
-            }
-        })
-    }
-
-
+    useEffect(() => {
+        if (open === false) return
+    }, [open])
 
     if (!open) return null
     return (
         <div className='fixed inset-0 flex justify-center items-center bg-black/50 z-50 p-4'>
-            <button disabled={isPending} className='absolute top-2 right-4 text-4xl cursor-pointer text-white' onClick={onClose}>&times;</button>
-            <div
-                className='bg-white p-6 rounded w-full max-w-md'>
+            <button className='absolute top-2 right-4 text-4xl cursor-pointer text-white' aria-label='Fechar' onClick={onClose}>&times;</button>
+            <div className='bg-white p-6 rounded w-full max-w-md'>
                 <h2 className='text-2xl font-bold mb-4'>Adicionar endereço</h2>
-                <form action={handleSubmit} className='flex flex-col gap-4'>
+                <form action={open ? formAction : undefined} className='flex flex-col gap-4'>
                     <Input
                         autoFocus
                         placeholder='Digite o CEP'
                         type='text'
                         name='zipcode'
                         className='w-full  '
-                        disabled={isPending}
-                        error={error?.fieldErrors?.zipcode}
+                        error={state.success ? undefined : state.errors?.fieldErrors?.zipcode}
                     />
                     <div className='flex flex-col md:flex-row gap-2'>
                         <Input
@@ -93,16 +55,14 @@ export const AddressModal = ({ open, onClose, onAdd }: Props) => {
                             type='text'
                             name='street'
                             className='w-full flex-1'
-                            disabled={isPending}
-                            error={error?.fieldErrors?.street}
+                            error={state.success ? undefined : state.errors?.fieldErrors?.street}
                         />
                         <Input
                             placeholder='Digite o número'
                             type='text'
                             name='number'
                             className='w-full flex-1'
-                            disabled={isPending}
-                            error={error?.fieldErrors?.number}
+                            error={state.success ? undefined : state.errors?.fieldErrors?.number}
                         />
                     </div>
                     <div className='flex flex-col md:flex-row gap-2'>
@@ -111,16 +71,14 @@ export const AddressModal = ({ open, onClose, onAdd }: Props) => {
                             type='text'
                             name='city'
                             className='w-full flex-1 '
-                            disabled={isPending}
-                            error={error?.fieldErrors?.city}
+                            error={state.success ? undefined : state.errors?.fieldErrors?.city}
                         />
                         <Input
                             placeholder='Digite o Estado'
                             type='text'
                             name='state'
                             className='w-full flex-1'
-                            disabled={isPending}
-                            error={error?.fieldErrors?.state}
+                            error={state.success ? undefined : state.errors?.fieldErrors?.state}
                         />
                     </div>
                     <Input
@@ -128,28 +86,24 @@ export const AddressModal = ({ open, onClose, onAdd }: Props) => {
                         type='text'
                         name='country'
                         className='w-full  '
-                        disabled={isPending}
-                        error={error?.fieldErrors?.country}
+                        error={state.success ? undefined : state.errors?.fieldErrors?.country}
                     />
                     <Input
                         placeholder='Digite o Complemento'
                         type='text'
                         name='complement'
                         className='  '
-                        disabled={isPending}
-                        error={error?.fieldErrors?.complement}
+                        error={state.success ? undefined : state.errors?.fieldErrors?.complement}
                     />
-                    {error?.formError && (
-                        <p className="text-red-500 text-sm">{error.formError}</p>
+
+                    {!state.success && state.errors?.formError && (
+                        <p className="text-red-500 text-sm mt-2">
+                            {state.errors.formError}
+                        </p>
                     )}
                     <div className='flex flex-col md:flex-row gap-2'>
-
                         <button type="button" className='w-full bg-gray-600 text-white p-4 rounded-sm cursor-pointer flex-1' onClick={onClose}>Voltar</button>
-                        <button type='submit'
-                            className='w-full bg-blue-600 text-white p-4 rounded-sm cursor-pointer flex-1'
-                            disabled={isPending}>
-                            {isPending ? 'Salvando...' : 'Adicionar'}
-                        </button>
+                        <SubmitButton label='Adicionar' pendingLabel='Salvando endereço...' />
                     </div>
                 </form>
             </div>

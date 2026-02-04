@@ -8,31 +8,35 @@ import { redirect } from 'next/navigation'
 
 const Page = async () => {
     const token = await getServerAuthToken();
-
     if (!token) {
         redirect("/login");
     }
-    const { cart: initialCart } = await getCartState()
-
-    if (initialCart.length === 0) {
+    const { cart } = await getCartState()
+    console.log(cart)
+    if (cart.length === 0) {
         redirect('/')
-        return null
     }
+
+    const ids = cart.map(item => item.productId)
+    const products = await getProductsFromList(ids)
 
     let cartProducts: CartListItem[] = []
     let subtotal: number = 0
-    const ids = initialCart.map(item => item.productId)
-    const products = await getProductsFromList(ids)
 
-    for (let cartItem of initialCart) {
-        let prodIndex = products.findIndex(item => item.id === cartItem.productId)
-        if (prodIndex > -1) {
-            cartProducts.push({
-                product: products[prodIndex],
-                quantity: cartItem.quantity
-            })
-            subtotal += products[prodIndex].price * cartItem.quantity
-        }
+    const productMap = new Map(
+        products.map(p => [p.id, p])
+    )
+
+    for (const cartItem of cart) {
+        const product = productMap.get(cartItem.productId)
+        if (!product) continue
+
+        cartProducts.push({
+            product,
+            quantity: cartItem.quantity
+        })
+        subtotal += product.price * cartItem.quantity
+
     }
 
 

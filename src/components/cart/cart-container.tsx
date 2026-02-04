@@ -13,20 +13,22 @@ type Props = {
 }
 
 export const CartContainer = ({ initialCartProducts, initialSubtotal }: Props) => {
-    const cartStore = useCartStore(state => state)
+    const cart = useCartStore(state => state.cart)
+    const shippingCost = useCartStore(state => state.shippingCost ?? 0)
+    const shippingDays = useCartStore(state => state.shippingDays ?? 0)
 
     useEffect(() => {
-        cartStore.clearShipping()
+        useCartStore.getState().clearShippingSelection()
     }, [])
 
-    let total = initialSubtotal + cartStore.shippingCost
+    let total = initialSubtotal + shippingCost
 
     return (
         <section>
             <div className='flex items-center gap-2'>
                 <Image src={'/ui/shopping-bag-4-line-black.png'} width={24} height={24} alt='Icone carrinho de compras' />
                 <h2 className='text-lg'>Seu carrinho de compras
-                    <span className='text-gray-500'>({cartStore.cart.length} {cartStore.cart.length != 1 ? "itens" : "item"})</span></h2>
+                    <span className='text-gray-500'>({cart.length} {cart.length != 1 ? "itens" : "item"})</span></h2>
             </div>
 
             <div className='flex flex-col md:flex-row gap-8 mt-9'>
@@ -44,8 +46,9 @@ export const CartContainer = ({ initialCartProducts, initialSubtotal }: Props) =
                             </div>
                             <div className='flex justify-between items-center'>
                                 <p>Frete</p>
-                                <span className='font-bold'>R$ {cartStore.shippingCost.toFixed(2)}</span>
+                                <span className='font-bold'>R$ {shippingCost.toFixed(2)}</span>
                             </div>
+
                         </div>
                         <div className='p-6'>
                             <div className='flex justify-between items-center mb-3'>

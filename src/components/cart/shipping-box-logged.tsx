@@ -1,86 +1,74 @@
 "use client"
-import { getShippingInfo } from '@/actions/get-shipping-info'
 import { getUserAddresses } from '@/actions/get-user-addresses'
-import { useAuthStore } from '@/store/auth'
 import { useCartStore } from '@/store/cartStore'
 import { Address } from '@/types/address'
-import React, { useEffect, useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { AddressModal } from './address-modal'
-import { addUserAddress } from '@/actions/add-user-address'
+import { updateShippingByZipcode } from '@/domain/shipping/update-shipping'
 
 export const ShippingBoxLogged = () => {
-    const { token, hydrated } = useAuthStore(state => state)
-    const cartStore = useCartStore(state => state)
+    const shippingZipcode = useCartStore(state => state.shippingZipcode)
+    const selectedAddressId = useCartStore(state => state.selectedAddressId)
+    const clearShipping = useCartStore(state => state.clearShipping)
+    const setSelectedAddressId = useCartStore(state => state.setSelectedAddressId)
+    const setShippingZipcode = useCartStore(state => state.setShippingZipcode)
     const [addresses, setAddresses] = useState<Address[]>([])
     const [isPeding, startTransition] = useTransition()
     const [modalOpen, setModalOpen] = useState(false)
+    const [authInvalid, setAuthInvalid] = useState(false)
 
     useEffect(() => {
-        if (hydrated && token) {
-            startTransition(() => {
-                getUserAddresses(token).then(setAddresses)
+        startTransition(() => {
+            getUserAddresses().then(result => {
+                setAddresses(result)
+                setAuthInvalid(false)
+
+            }).catch(() => {
+                setAuthInvalid(true)
             })
-        }
-
-    }, [hydrated, token])
+        })
+    }, [])
 
     useEffect(() => {
-        if (cartStore.selectedAddressId) {
-            updateShippingInfo()
+        if (authInvalid) {
+            clearShipping()
         }
-    }, [cartStore.selectedAddressId])
+    }, [authInvalid])
 
-    const updateShippingInfo = async () => {
-        if (cartStore.shippingZipcode.length > 4) {
-            const shippingInfo = await getShippingInfo(cartStore.shippingZipcode)
-            if (shippingInfo) {
-                cartStore.setShippingCost(shippingInfo.cost)
-                cartStore.setShippingDays(shippingInfo.days)
-            }
-        }
-    }
+    useEffect(() => {
+        if (!shippingZipcode) return
+        updateShippingByZipcode(shippingZipcode)
+        console.log("Calculando frete para:", shippingZipcode)
+    }, [shippingZipcode])
 
     const handleSelectAddress = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-        cartStore.clearShipping()
-        const id = parseInt(e.target.value)
-        if (id) {
-            const address = addresses.find(address => address.id === id)
-            if (address) {
-                cartStore.setShippingZipcode(address.zipcode)
-                cartStore.setSelectedAddressId(id)
-            }
-        }
+        const id = Number(e.target.value)
+        clearShipping()
+
+        if (!id) return
+
+        const address = addresses.find(a => a.id === id)
+        if (!address) return
+
+        setSelectedAddressId(id)
+        setShippingZipcode(address.zipcode)
 
     }
-    const handleAddAddress = async (
-        address: Address
-    ): Promise<{ success: boolean; errors?: any }> => {
-        if (!token) {
-            return { success: false, errors: { formError: "Usuário não autenticado" } }
-        }
-
-        const result = await addUserAddress(token!, address)
-
-        if (!result.success) {
-            return {
-                success: false,
-                errors: result.errors?.fieldErrors ?? { formError: result.errors?.formError }
-            }
-        }
-
-        setAddresses(result.data!)
-        setModalOpen(false)
-
-        return { success: true }
+    if (authInvalid) {
+        return (
+            <div className="text-sm text-gray-500">
+                Sua sessão expirou. Faça login novamente para adicionar endereço.
+            </div>
+        )
     }
     return (
         <div className='flex flex-col gap-4'>
             <select
-                value={cartStore.selectedAddressId ?? ""}
+                value={selectedAddressId ?? ""}
                 onChange={handleSelectAddress}
                 className='flex-1 border  px-6 py-5 border-gray-200  rounded-sm bg-white'>
                 <option value="">
-                    {addresses.length === 0 ? 'Nenhum endereço cadastrado' : 'Selecione um endereço'}
+                    {addresses.length === 0 ? 'Você ainda não cadastrou um endereço' : 'Selecione um endereço'}
                 </option>
                 {addresses.map(address => (
                     <option key={address.id} value={address.id}>
@@ -89,10 +77,11 @@ export const ShippingBoxLogged = () => {
                 ))}
             </select>
             <button
+                disabled={authInvalid}
                 onClick={() => setModalOpen(true)}
-                className='cursor-pointer px-6 py-5 bg-blue-600 text-white border-0 rounded-sm' >
+                className='cursor-pointer px-6 py-5 bg-blue-600 text-white border-0 rounded-sm disabled:opacity-50' >
                 Adicionar um novo endereço</button>
-            <AddressModal open={modalOpen} onClose={() => setModalOpen(false)} onAdd={handleAddAddress} />
+            <AddressModal key={modalOpen ? 'open' : 'closed'} open={modalOpen} onClose={() => setModalOpen(false)} onSuccess={setAddresses} />
         </div>
     )
 }

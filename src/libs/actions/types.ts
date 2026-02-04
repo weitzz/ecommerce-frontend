@@ -12,5 +12,5 @@ export type ActionResult<T = void, F = any> =
 
 
 export type ReadResult<T> =
-    | { ok: true; data: T }
-    | { ok: false; error: HttpError }
+    | { success: true; data: T }
+    | { success: false; error: HttpError }

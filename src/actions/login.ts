@@ -13,7 +13,10 @@ type LoginData = {
 }
 
 type LoginApiResponse = {
-    token: string
+    success: boolean
+    data: {
+        token: string
+    }
 }
 
 export type LoginResponse = ActionResult<void, LoginData>
@@ -40,8 +43,7 @@ export async function loginAction(prevState: LoginResponse,
         skipAuth: true,
         body: JSON.stringify(parsed.data)
     })
-
-    if (!response.ok) {
+    if (!response.success) {
         return {
             success: false,
             errors: {
@@ -49,8 +51,8 @@ export async function loginAction(prevState: LoginResponse,
             }
         }
     }
-
-    await setServerAuthToken(response.data.token)
+    const token = response.data.data.token
+    await setServerAuthToken(token)
 
     return { success: true }
 

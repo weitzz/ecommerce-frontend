@@ -10,7 +10,7 @@ import { Suspense } from "react";
 export default async function Home() {
   const banners = await getBanners()
 
-  if (!banners.ok) {
+  if (!banners.success) {
     return null
   }
   return (

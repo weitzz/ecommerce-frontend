@@ -1,30 +1,36 @@
 "use server"
 
-import { api } from "@/libs/axios"
-import { AxiosError } from "axios"
+import { apiFetch } from "@/libs/api"
+import type { ReadResult } from "@/libs/actions/types"
 
 
 type ShippingInfoResponse = {
     zipcode: string
-    cost: number
-    days: number
+    shippingCost: number
+    shippingDays: number
 }
 
-export const getShippingInfo = async (zipcode: string): Promise<ShippingInfoResponse | false> => {
-    try {
-        const response = await api.get('/cart/shipping', { params: { zipcode } })
-        return response.data as ShippingInfoResponse
-    } catch (error) {
-        if (error instanceof AxiosError) {
-            console.error('Erro Axios:', {
-                status: error.response?.status,
-                data: error.response?.data,
-            })
-        }
-        else {
-            console.error('Erro inesperado:', error)
-        }
+type GetShippingInfoApiResponse = {
+    success: boolean
+    data: ShippingInfoResponse
+}
 
-        throw new Error('Erro ao calcular frete')
+
+export const getShippingInfo = async (zipcode: string): Promise<ReadResult<ShippingInfoResponse>> => {
+    const params = new URLSearchParams({ zipcode })
+
+    const response = await apiFetch<GetShippingInfoApiResponse>(`/cart/shipping?${params.toString()}`)
+    if (!response.success) {
+        console.error("[getShippingInfo]", response.error)
+        return {
+            success: false,
+            error: response.error
+        }
     }
+
+    return {
+        success: true,
+        data: response.data.data
+    }
+
 }

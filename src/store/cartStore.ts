@@ -7,13 +7,14 @@ type CartState = {
     shippingDays: number
     selectedAddressId: number | null
     addItem: (cartItem: CartItem) => void
-    removeItem: (productId: number | string) => void
-    updateQuantity: (productId: number | string, quantity: number) => void
+    removeItem: (productId: number) => void
+    updateQuantity: (productId: number, quantity: number) => void
     setShippingZipcode: (zipcode: string) => void
     setShippingCost: (cost: number) => void
     setShippingDays: (days: number) => void
     setSelectedAddressId: (addressId: number | null) => void
     clearCart: () => void
+    clearShippingSelection: () => void,
     clearShipping: () => void
 }
 
@@ -45,13 +46,23 @@ export const useCartStore = create<CartState>((set) => ({
         return { cart: newCart }
     }),
     updateQuantity: (productId, quantity) => set(state => {
-        const newCart = state.cart.map(item =>
-            item.productId === productId
-                ? { ...item, quantity }
-                : item
-        );
-        return { cart: newCart };
+        if (quantity <= 0) {
+            return {
+                cart: state.cart.filter(item => item.productId !== productId)
+            }
+        }
+
+        return {
+            cart: state.cart.map(item =>
+                item.productId === productId
+                    ? { ...item, quantity }
+                    : item
+            )
+        }
     }),
+
+
+
     setShippingZipcode: (zipcode: string) => set({ shippingZipcode: zipcode }),
     setShippingCost: (cost: number) => set({ shippingCost: cost }),
     setShippingDays: (days: number) => set({ shippingDays: days }),
@@ -61,11 +72,16 @@ export const useCartStore = create<CartState>((set) => ({
         shippingDays: 0,
         selectedAddressId: null
     }),
-    clearShipping: () => set({
+    clearShippingSelection: () => set({
         shippingZipcode: '',
         shippingCost: 0,
         shippingDays: 0,
-        selectedAddressId: null
+    }),
+
+    clearShipping: () => set({
+        shippingCost: 0,
+        shippingDays: 0
     }),
     setSelectedAddressId: (addressId) => set({ selectedAddressId: addressId }),
+
 }))

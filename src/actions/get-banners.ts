@@ -12,15 +12,15 @@ export const getBanners = async (): Promise<ReadResult<Banner[]>> => {
 
     const response = await apiFetch<GetBannersApiResponse>("/banners")
 
-    if (!response.ok) {
+    if (!response.success) {
         console.error('getBanners', response.error)
         return {
-            ok: false,
+            success: false,
             error: response.error
         }
     }
     return {
-        ok: true,
+        success: true,
         data: response.data.data
     }
 }

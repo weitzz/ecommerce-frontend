@@ -5,6 +5,8 @@ import { getProducts } from "@/actions/get-products"
 
 export const MostViewedProducts = async () => {
     const products = await getProducts({ orderBy: 'views', limit: 4 })
+
+
     return (
         <div className="mt-10">
             <div className="flex items-center justify-between">
@@ -21,7 +23,7 @@ export const MostViewedProducts = async () => {
             </div>
 
             <div className="mt-9">
-                <ProductList list={products.data} />
+                <ProductList list={products} />
             </div>
 
             <div className="mt-6 text-center md:hidden">

@@ -5,72 +5,64 @@ import { Address } from "@/types/address"
 import { getUserAddresses } from "./get-user-addresses"
 import { AddressSchema } from "@/schemas/address"
 import { zodToFieldErrors } from "@/libs/errors/zod"
-import { ActionResult } from "@/libs/actions/types"
+import type { ActionResult } from "@/libs/actions/types"
+
+
+export type AddAddressResponse = ActionResult<Address[], Address>
 
 
 
 
+export const addUserAddress = async (prevState: AddAddressResponse,
+    formData: FormData): Promise<AddAddressResponse> => {
 
-
-export const addUserAddress = async (token: string, address: Address): Promise<ActionResult> => {
-    const parsed = AddressSchema.safeParse(address)
+    const parsed = AddressSchema.safeParse({
+        zipcode: formData.get("zipcode"),
+        street: formData.get("street"),
+        number: formData.get("number"),
+        city: formData.get("city"),
+        state: formData.get("state"),
+        country: formData.get("country"),
+        complement: formData.get("complement"),
+    })
     if (!parsed.success) {
-        const fieldErrors: Partial<Record<keyof Address, string>> = {}
-
-        parsed.error.issues.forEach(issue => {
-            const field = issue.path[0] as keyof Address
-            fieldErrors[field] = issue.message
-        })
-
         return {
             success: false,
-            errors: { fieldErrors }
+            errors: { fieldErrors: zodToFieldErrors(parsed.error) }
         }
     }
 
-    try {
-        await apiFetch('/me/addresses', {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(parsed.data),
-        })
 
+    const response = await apiFetch('/me/addresses', {
+        method: "POST",
+        body: JSON.stringify(parsed.data),
+    })
 
-        console.log(JSON.stringify(parsed.data))
-
-        const addresses = await getUserAddresses(token)
-
-        console.log(addresses)
-
-        return {
-            success: true,
-            data: addresses,
-        }
-
-
-
-    } catch (error) {
-        console.error("ADD ADDRESS ERROR:", error)
-        if (error instanceof HttpError) {
-
-            return {
-                success: false,
-                errors: {
-                    formError: error.message || "Erro ao cadastrar endereço"
-                }
-            };
-        }
-
+    if (!response.success) {
         return {
             success: false,
             errors: {
-                formError: 'Erro interno ao cadastrar endereço'
+                formError: response.error.data?.message ?? "Erro ao cadastrar endereço"
             }
         }
     }
+
+    const addressesResult = await getUserAddresses()
+
+    if (!addressesResult) {
+        return {
+            success: false,
+            errors: {
+                formError: "Erro ao buscar endereços atualizados"
+            }
+        }
+    }
+
+    return {
+        success: true,
+        data: addressesResult
+    }
+
 
 }
 

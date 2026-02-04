@@ -1,3 +1,4 @@
+'use client'
 import { Product } from "@/types/products"
 import ProductItem from "./product-item"
 
@@ -6,8 +7,14 @@ type Props = {
 }
 
 function ProductList({ list }: Props) {
+    if (!list || list.length === 0) {
+        return (
+            <p className="text-gray-500 text-center">
+                Nenhum produto encontrado
+            </p>
+        )
+    }
 
-    console.log(list.data)
     return (
         <div className='grid grid-cols-1 md:grid-cols-4 gap-8'>
             {list.map(item => (

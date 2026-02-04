@@ -3,6 +3,8 @@
 import type { Product } from "@/types/products"
 import { apiFetch } from "@/libs/api"
 import type { ReadResult } from "@/libs/actions/types"
+
+
 type ProductFilter = {
     metadata?: Record<string, string[]>
     orderBy?: 'views' | 'selling' | 'price'
@@ -20,7 +22,7 @@ type GetProductsResponse = {
 
 export const getProducts = async (
     filters: ProductFilter = {}
-): Promise<ReadResult<Product[]>> => {
+): Promise<Product[]> => {
     const params = new URLSearchParams()
 
     if (filters.metadata) {
@@ -43,20 +45,15 @@ export const getProducts = async (
         params.set("page", String(filters.page))
     }
 
-    const result = await apiFetch<GetProductsResponse>(
+    const response = await apiFetch<GetProductsResponse>(
         `/products?${params.toString()}`
     )
 
-    if (!result.ok) {
-        console.error("[getProducts]", result.error)
-        return {
-            ok: false,
-            error: result.error
-        }
+    if (!response.success) {
+        console.error("[getProducts]", response.error)
+        throw response.error
+
     }
 
-    return {
-        ok: true,
-        data: result.data.data
-    }
+    return response.data.data
 }

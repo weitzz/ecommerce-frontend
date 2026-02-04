@@ -8,6 +8,7 @@ type Props = {
 
 async function RelatedProducts({ id }: Props) {
     const products = await getRelatedProducts(id)
+
     return (
         <div className="mt-10">
             <h2 className=" text-2xl text-center md:text-left">Você também vai gostar </h2>

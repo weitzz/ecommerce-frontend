@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 
 export const getServerAuthToken = async () => {
     const cookieStore = await cookies()
+    console.log(cookieStore)
     return cookieStore.get('auth-token')?.value || null
 
 }

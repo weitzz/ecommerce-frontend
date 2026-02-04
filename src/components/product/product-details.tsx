@@ -3,21 +3,33 @@ import React from 'react'
 import Image from 'next/image'
 import { ProductComplete } from '@/types/products'
 import { ButtonLiked } from '../ui/button-liked'
-import { data } from '@/data'
 import { useCartStore } from '@/store/cartStore'
 import { setCartState } from '@/actions/set-cart-state'
-import { redirect } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 type Props = {
     product: ProductComplete
 }
 
 export const ProductDetails = ({ product }: Props) => {
-    const cartStore = useCartStore(state => state)
+    const router = useRouter()
+    const cartStore = useCartStore()
+
     const addToCart = async () => {
         cartStore.addItem({ productId: product.id, quantity: 1 })
+
         const updatedCart = useCartStore.getState().cart
-        await setCartState(updatedCart)
-        redirect('/cart')
+
+        const result = await setCartState(updatedCart)
+
+        console.log(result)
+
+        // if (!result) {
+        //     console.error("Erro ao salvar carrinho", result.error)
+        //     return
+        // }
+
+        // 3️⃣ navega
+        router.push("/cart")
     }
     return (
         <section className='flex-1'>
@@ -28,7 +40,7 @@ export const ProductDetails = ({ product }: Props) => {
             <div className='flex gap-4'>
                 <button onClick={addToCart}
                     className='flex-1 cursor-pointer max-w-xs  px-8 py-4 bg-blue-600 text-white border-0 rounded-sm hover:opacity-90'>Adicionar ao carrinho</button>
-                <ButtonLiked data={data.product} />
+                {/* <ButtonLiked data={product} /> */}
                 <div className="cursor-pointer size-12 border border-gray-200 rounded-sm flex justify-center items-center">
                     <Image
                         src={`/ui/share-line.png`}

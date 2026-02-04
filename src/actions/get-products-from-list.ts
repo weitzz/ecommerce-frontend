@@ -1,24 +1,33 @@
 "use server"
 
-import { api } from "@/libs/axios"
+import { apiFetch } from "@/libs/api"
 import { Product } from "@/types/products"
-import { AxiosError } from "axios"
 
-export const getProductsFromList = async (ids: (string | number)[]) => {
+type GetProductsFromListApiResponse = {
+    success: boolean
+    data: Product[]
 
-    try {
-        const response = await api.post('/cart/mount', { ids })
-        return response.data.products as Product[]
-    } catch (error) {
-        if (error instanceof AxiosError) {
-            console.error('Erro Axios:', {
-                status: error.response?.status,
-                data: error.response?.data,
-            })
-        } else {
-            console.error('Erro inesperado:', error)
-        }
+}
 
-        throw new Error('Erro ao montar carrinho')
+export const getProductsFromList = async (ids: (string | number)[]): Promise<Product[]> => {
+
+    const response = await apiFetch<GetProductsFromListApiResponse>('/cart/mount', {
+        method: "POST",
+        body: JSON.stringify({ ids })
+    })
+
+    if (!response.success) {
+        console.error("[getProductsFromList]", response.error)
+        throw response.error
     }
+
+    const products = response.data.data
+
+    if (!Array.isArray(products)) {
+        console.error("[getProductsFromList] resposta inválida:", response.data)
+        throw new Error("Resposta inválida ao montar carrinho")
+    }
+
+    return products
+
 }

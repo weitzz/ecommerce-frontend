@@ -27,7 +27,7 @@ const Header = ({ isAuthenticated }: HeaderProps) => {
                 <div className='flex items-center justify-between'>
                     <div className='w-32'>
                         <Link href={"/"}>
-                            <Image src="/ui/logo-black.png" alt="B7Store" width={120} height={40} />
+                            <Image src="/ui/logo-black.png" alt="ecommerce" width={120} height={40} />
                         </Link>
                     </div>
                     <div className='flex-1 '>

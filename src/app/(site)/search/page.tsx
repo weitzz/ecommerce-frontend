@@ -12,14 +12,15 @@ export default async function SearchPage({ searchParams }: Props) {
     const products = await getProducts({
         search: query
     })
-    console.log(query)
+    console.log(products)
+
     return (
         <div className="max-w-6xl mx-auto p-6">
             <h1 className="text-2xl font-semibold mb-6">
                 Resultados para "{query}"
             </h1>
 
-            <ProductList list={products.data} />
+            <ProductList list={products} />
         </div>
     )
 }

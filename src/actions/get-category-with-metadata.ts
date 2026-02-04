@@ -16,20 +16,20 @@ export const getCategoryWithMetadata = async (slug: string): Promise<ReadResult<
 
     const response = await apiFetch<GetCategoryWithMetadataApiResponse>(`/categories/${slug}/metadata`)
 
-    if (!response.ok) {
+    if (!response.success) {
         console.error(
             "[getCategoryWithMetadata]",
             response.error
         )
         return {
-            ok: false,
+            success: false,
             error: response.error
         }
 
     }
     console.log("RESPONSE", response.data)
     return {
-        ok: true,
+        success: true,
         data: response.data.data
     }
 

@@ -5,35 +5,39 @@ import { ProductDetails } from '@/components/product/product-details'
 import RelatedProducts from '@/components/product/related-products'
 import RelatedProductsSkeleton from '@/components/product/related-products-skeleton'
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
 import React, { Suspense } from 'react'
+
+
 type Props = {
-    params: Promise<{ id: string }>
+    params: { id: number }
 
 }
 
 const Page = async ({ params }: Props) => {
     const { id } = await params
-    const data = await getProductCategory(parseInt(id))
+    const { product, category } = await getProductCategory(id)
 
-    if (!data) {
-        redirect('/')
-    }
+
     return (
         <>
             <div className="text-gray-500 mb-4">
-                <Link href={'/'}>Home</Link> &gt; <Link href={`/categories/${data.category.slug}`}>{data.category.name}</Link> &gt; {data.product.name}
+                <Link href="/">Home</Link> &gt;{" "}
+                <Link href={`/categories/${category.slug}`}>
+                    {category.name}
+                </Link>{" "}
+                &gt; {product.name}
             </div>
-            <div className='flex flex-col md:flex-row gap-6 md:gap-32'>
-                <ImageSlider images={data.product.images} />
-                <ProductDetails product={data.product} />
+
+            <div className="flex flex-col md:flex-row gap-6 md:gap-32">
+                <ImageSlider images={product.images} />
+                <ProductDetails product={product} />
             </div>
-            <ProductDescription text={data.product.description} />
+
+            <ProductDescription text={product.description} />
 
             <Suspense fallback={<RelatedProductsSkeleton />}>
-                <RelatedProducts id={data.product.id} />
+                <RelatedProducts id={product.id} />
             </Suspense>
-
         </>
     )
 }
