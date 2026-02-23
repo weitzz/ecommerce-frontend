@@ -1,33 +1,23 @@
 "use server"
 
-import { apiFetch } from "@/libs/api"
+import { apiFetchServer } from "@/libs/api-server"
 import { Product } from "@/types/products"
-
-type GetProductsFromListApiResponse = {
-    success: boolean
-    data: Product[]
-
-}
+import { HttpError } from "@/libs/errors/http"
 
 export const getProductsFromList = async (ids: (string | number)[]): Promise<Product[]> => {
 
-    const response = await apiFetch<GetProductsFromListApiResponse>('/cart/mount', {
+    const data = await apiFetchServer<Product[]>('/cart/mount', {
         method: "POST",
-        body: JSON.stringify({ ids })
+        body: JSON.stringify({ ids }),
     })
 
-    if (!response.success) {
-        console.error("[getProductsFromList]", response.error)
-        throw response.error
+    if (!Array.isArray(data)) {
+        throw new HttpError(
+            500,
+            "Resposta inválida ao montar carrinho"
+        )
     }
 
-    const products = response.data.data
-
-    if (!Array.isArray(products)) {
-        console.error("[getProductsFromList] resposta inválida:", response.data)
-        throw new Error("Resposta inválida ao montar carrinho")
-    }
-
-    return products
+    return data
 
 }

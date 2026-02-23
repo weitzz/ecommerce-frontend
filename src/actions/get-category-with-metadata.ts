@@ -1,4 +1,5 @@
-import { apiFetch } from "@/libs/api"
+import { apiFetchServer } from "@/libs/api-server"
+import { HttpError } from "@/libs/errors/http"
 import type { ReadResult } from "@/libs/actions/types"
 import { Category, CategoryMetadata } from "@/types/category"
 
@@ -7,30 +8,29 @@ type CategoryWithMetadata = {
     metadata: CategoryMetadata[]
 }
 
-type GetCategoryWithMetadataApiResponse = {
-    success: boolean
-    data: CategoryWithMetadata
-}
+
 
 export const getCategoryWithMetadata = async (slug: string): Promise<ReadResult<CategoryWithMetadata>> => {
-
-    const response = await apiFetch<GetCategoryWithMetadataApiResponse>(`/categories/${slug}/metadata`)
-
-    if (!response.success) {
-        console.error(
-            "[getCategoryWithMetadata]",
-            response.error
-        )
+    try {
+        const data = await apiFetchServer<CategoryWithMetadata>(`/categories/${slug}/metadata`, {}, false)
+        console.log(data.category.name)
         return {
-            success: false,
-            error: response.error
+            success: true,
+            data
         }
 
-    }
-    console.log("RESPONSE", response.data)
-    return {
-        success: true,
-        data: response.data.data
+    } catch (error) {
+        if (error instanceof HttpError) {
+            return {
+                success: false,
+                error
+            }
+        }
+
+        return {
+            success: false,
+            error: new HttpError(500, "Erro inesperado")
+        }
     }
 
 

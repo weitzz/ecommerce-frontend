@@ -3,22 +3,22 @@
 import { apiFetchServer } from "@/libs/api-server"
 import type { ReadResult } from "@/libs/actions/types"
 import { HttpError } from "@/libs/errors/http"
-
-type OrderListItem = {
+export type Profile = {
     id: number
-    status: "PENDING" | "PAID" | "CANCELED"
-    totalPrice: number
-    createdAt: string
+    name?: string | null
+    email: string
 }
 
 
-export const getOrders = async (): Promise<ReadResult<OrderListItem[]>> => {
+export const getMe = async (): Promise<ReadResult<Profile>> => {
     try {
-        const response = await apiFetchServer<OrderListItem[]>("/orders")
+        const profile = await apiFetchServer<Profile>("/me")
+        console.log(profile)
         return {
             success: true,
-            data: response
+            data: profile
         }
+
     } catch (error) {
         if (error instanceof HttpError) {
             return {
@@ -29,11 +29,9 @@ export const getOrders = async (): Promise<ReadResult<OrderListItem[]>> => {
 
         return {
             success: false,
-            error: new HttpError(
-                500,
-                "Erro inesperado ao buscar pedidos"
-            )
+            error: new HttpError(500, "Erro inesperado")
         }
     }
+
 
 }

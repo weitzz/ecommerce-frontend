@@ -1,6 +1,7 @@
 "use server"
 
-import { apiFetch } from "@/libs/api"
+import { apiFetchServer } from "@/libs/api-server"
+import { HttpError } from "@/libs/errors/http"
 import { Address } from "@/types/address"
 import { getUserAddresses } from "./get-user-addresses"
 import { AddressSchema } from "@/schemas/address"
@@ -32,36 +33,40 @@ export const addUserAddress = async (prevState: AddAddressResponse,
         }
     }
 
+    try {
+        await apiFetchServer<void>('/me/addresses', {
+            method: "POST",
+            body: JSON.stringify(parsed.data),
+        })
+        const updatedAddresses = await getUserAddresses()
 
-    const response = await apiFetch('/me/addresses', {
-        method: "POST",
-        body: JSON.stringify(parsed.data),
-    })
+        return {
+            success: true,
+            data: updatedAddresses
+        }
 
-    if (!response.success) {
+    } catch (error) {
+        if (error instanceof HttpError) {
+            return {
+                success: false,
+                errors: {
+                    formError:
+                        error.data?.message ??
+                        "Erro ao cadastrar endereço"
+                }
+            }
+        }
+
         return {
             success: false,
             errors: {
-                formError: response.error.data?.message ?? "Erro ao cadastrar endereço"
+                formError: "Erro inesperado"
             }
         }
     }
 
-    const addressesResult = await getUserAddresses()
 
-    if (!addressesResult) {
-        return {
-            success: false,
-            errors: {
-                formError: "Erro ao buscar endereços atualizados"
-            }
-        }
-    }
 
-    return {
-        success: true,
-        data: addressesResult
-    }
 
 
 }

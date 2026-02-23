@@ -1,7 +1,9 @@
 "use server"
 
-import { apiFetch } from "@/libs/api"
+import { apiFetchServer } from "@/libs/api-server"
+import { HttpError } from "@/libs/errors/http"
 import type { ReadResult } from "@/libs/actions/types"
+import { getImageUrl } from "@/libs/get-image-url"
 
 export type OrderDetail = {
     id: number
@@ -57,60 +59,56 @@ type OrderApiResponse = {
     }[]
 }
 
-type GetOrderByIdApiResponse = {
-    success: boolean
-    data: OrderApiResponse
-}
-const IMAGE_BASE_URL = process.env.NEXT_PUBLIC_API_BASE
 
 export const getOrderById = async (
     id: number
 ): Promise<ReadResult<OrderDetail>> => {
-    const response = await apiFetch<GetOrderByIdApiResponse>(`/orders/${id}`)
-    console.log(response)
-    if (!response.success) {
-        console.error("[getOrderById]", response.error)
+    try {
+        const order = await apiFetchServer<OrderApiResponse>(`/orders/${id}`)
+
+        const normalized: OrderDetail = {
+            id: order.id,
+            status: order.status,
+            totalPrice: Number(order.totalPrice),
+            shippingCost: Number(order.shippingCost),
+            shippingDays: Number(order.shippingDays),
+            createdAt: order.createdAt,
+
+            address: {
+                street: order.shippingStreet,
+                number: order.shippingNumber,
+                city: order.shippingCity,
+                state: order.shippingState,
+                zipcode: order.shippingZipcode,
+                country: order.shippingCountry,
+                complement: order.shippingComplement,
+            },
+
+            items: order.orderItems.map(item => ({
+                productId: item.product.id,
+                name: item.product.name,
+                quantity: item.quantity,
+                price: Number(item.price),
+                image: getImageUrl(item.product.image)
+            })),
+        }
+
+        return {
+            success: true,
+            data: normalized
+        }
+    } catch (error) {
+        if (error instanceof HttpError) {
+            return {
+                success: false,
+                error
+            }
+        }
+
         return {
             success: false,
-            error: response.error
+            error: new HttpError(500, "Erro inesperado")
         }
     }
-    const order = response.data.data
 
-    console.log("ORDER", order)
-
-    const normalized: OrderDetail = {
-        id: order.id,
-        status: order.status,
-        totalPrice: Number(order.totalPrice),
-        shippingCost: Number(order.shippingCost),
-        shippingDays: Number(order.shippingDays),
-        createdAt: order.createdAt,
-
-        address: {
-            street: order.shippingStreet,
-            number: order.shippingNumber,
-            city: order.shippingCity,
-            state: order.shippingState,
-            zipcode: order.shippingZipcode,
-            country: order.shippingCountry,
-            complement: order.shippingComplement,
-        },
-
-        items: order.orderItems.map(item => ({
-            productId: item.product.id,
-            name: item.product.name,
-            quantity: item.quantity,
-            price: Number(item.price),
-            image: item.product.image
-                ? `${IMAGE_BASE_URL}/${item.product.image}`
-                : null,
-        })),
-    }
-
-
-    return {
-        success: true,
-        data: normalized
-    }
 }

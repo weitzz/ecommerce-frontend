@@ -23,12 +23,6 @@ export const ProductDetails = ({ product }: Props) => {
 
         console.log(result)
 
-        // if (!result) {
-        //     console.error("Erro ao salvar carrinho", result.error)
-        //     return
-        // }
-
-        // 3️⃣ navega
         router.push("/cart")
     }
     return (
@@ -40,7 +34,7 @@ export const ProductDetails = ({ product }: Props) => {
             <div className='flex gap-4'>
                 <button onClick={addToCart}
                     className='flex-1 cursor-pointer max-w-xs  px-8 py-4 bg-blue-600 text-white border-0 rounded-sm hover:opacity-90'>Adicionar ao carrinho</button>
-                {/* <ButtonLiked data={product} /> */}
+                <ButtonLiked productId={product.id} />
                 <div className="cursor-pointer size-12 border border-gray-200 rounded-sm flex justify-center items-center">
                     <Image
                         src={`/ui/share-line.png`}

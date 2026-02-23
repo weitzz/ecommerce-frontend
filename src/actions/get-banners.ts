@@ -1,26 +1,33 @@
 "use server"
-import { apiFetch } from "@/libs/api"
+import { apiFetchServer } from "@/libs/api-server"
 import { Banner } from "@/types/banner"
 import type { ReadResult } from "@/libs/actions/types"
+import { HttpError } from "@/libs/errors/http"
 
 
-type GetBannersApiResponse = {
-    data: Banner[]
-}
 
 export const getBanners = async (): Promise<ReadResult<Banner[]>> => {
-
-    const response = await apiFetch<GetBannersApiResponse>("/banners")
-
-    if (!response.success) {
-        console.error('getBanners', response.error)
+    try {
+        const response = await apiFetchServer<Banner[]>("/banners", {}, false)
+        return {
+            success: true,
+            data: response
+        }
+    } catch (error) {
+        if (error instanceof HttpError) {
+            return {
+                success: false,
+                error
+            }
+        }
         return {
             success: false,
-            error: response.error
+            error: new HttpError(
+                500,
+                "Erro inesperado ao buscar banners"
+            )
         }
+
     }
-    return {
-        success: true,
-        data: response.data.data
-    }
+
 }

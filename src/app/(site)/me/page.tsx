@@ -1,16 +1,5 @@
-import { getServerAuthToken } from '@/libs/server-cookies';
-import { redirect } from 'next/navigation';
-import React from 'react'
+import { redirect } from "next/navigation"
 
-const page = async () => {
-    const token = await getServerAuthToken();
-
-    if (!token) {
-        redirect("/login");
-    }
-    return (
-        <div>{token}</div>
-    )
+export default function MePage() {
+    redirect("/me/orders")
 }
-
-export default page

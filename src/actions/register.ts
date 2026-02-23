@@ -1,9 +1,10 @@
 "use server"
 
-import { apiFetch } from "@/libs/api"
+import { apiFetchServer } from "@/libs/api-server"
 import { RegisterSchema } from "@/schemas/register"
 import { zodToFieldErrors } from "@/libs/errors/zod"
 import { ActionResult } from "@/libs/actions/types"
+import { HttpError } from "@/libs/errors/http"
 
 
 type RegisterData = {
@@ -32,21 +33,30 @@ export async function registerAction(prevState: RegisterResponse, formData: Form
         }
     }
 
+    try {
+        const response = await apiFetchServer<RegisterResponse>('/auth/register', {
+            method: "POST",
+            body: JSON.stringify(parsed.data)
+        })
 
-    const response = await apiFetch<RegisterResponse>('/auth/register', {
-        method: "POST",
-        body: JSON.stringify(parsed.data)
-    })
 
-    if (!response?.ok) {
+        return { success: true }
+
+    } catch (error) {
+        if (error instanceof HttpError) {
+            return {
+                success: false,
+                errors: {
+                    formError: error.data?.message ?? "Erro ao registrar usuário"
+                }
+            }
+        }
         return {
             success: false,
             errors: {
-                formError: response.error.data?.message ?? "Erro ao registrar usuário"
+                formError: "Erro inesperado"
             }
-        };
+        }
     }
-    return { success: true }
-
 
 }

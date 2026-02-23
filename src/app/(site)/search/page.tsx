@@ -12,7 +12,6 @@ export default async function SearchPage({ searchParams }: Props) {
     const products = await getProducts({
         search: query
     })
-    console.log(products)
 
     return (
         <div className="max-w-6xl mx-auto p-6">

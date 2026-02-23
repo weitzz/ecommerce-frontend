@@ -5,8 +5,6 @@ import { StatusBadge } from "@/components/order/status-badge";
 export default async function MyOrdersPage() {
     const result = await getOrders()
 
-    console.log(result)
-
     if (!result.success) {
         return <p className="text-red-500">Erro ao carregar pedidos</p>
     }
@@ -17,9 +15,9 @@ export default async function MyOrdersPage() {
     return (
         <section className="max-w-3xl mx-auto p6">
             <h1 className="text-2xl font-bold mb-6">Meus pedidos</h1>
-            <ul>
+            <div className="gap-3 flex ">
                 {result.data.map(order => (
-                    <li key={order.id}>
+                    <div className="bg-white border border-gray-200 rounded-sm p-6" key={order.id}>
                         <p className="font-semibold">Pedido #{order.id}</p>
                         <p className="text-sm text-gray-500">
                             {new Date(order.createdAt).toLocaleDateString()}
@@ -28,10 +26,11 @@ export default async function MyOrdersPage() {
                         <p className="font-bold">
                             Total: R$ {order.totalPrice.toFixed(2)}
                         </p>
-                        <Link href={`/my-orders/${order.id}`} className="text-blue-600 font-bold">Ver detalhes</Link>
-                    </li>
+                        <Link href={`/me/orders/${order.id}`} className="text-blue-600 font-bold">Ver detalhes</Link>
+
+                    </div>
                 ))}
-            </ul>
+            </div>
         </section>
 
     )

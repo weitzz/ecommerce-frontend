@@ -1,79 +1,96 @@
-import { create } from "zustand";
+import { create } from "zustand"
+import { apiFetchClient } from "@/libs/api-client"
 
 type FavoriteStore = {
-    favorites: number[]; // productIds
-    isLoading: boolean;
+    favorites: Set<number>
+    isLoading: boolean
+    isHydrated: boolean
+    hydrate: (ids: number[]) => void
+    loadFavorites: () => Promise<void>
+    toggleFavorite: (productId: number) => Promise<void>
+    isFavorited: (productId: number) => boolean
+}
 
-    loadFavorites: () => Promise<void>;
-    toggleFavorite: (productId: number) => Promise<void>;
-    isFavorited: (productId: number) => boolean;
-};
+type FavoriteResponse = {
+    favorited: boolean
+    productId: number
+}
 
 export const useFavoriteStore = create<FavoriteStore>((set, get) => ({
-    favorites: [],
+
+    favorites: new Set(),
     isLoading: false,
+    isHydrated: false,
+
+    hydrate: (ids) => {
+        set({
+            favorites: new Set(ids),
+            isHydrated: true
+        })
+    },
 
     isFavorited: (productId) => {
-        return get().favorites.includes(productId);
+        return get().favorites.has(productId)
     },
 
     loadFavorites: async () => {
-        const token = localStorage.getItem("token");
-        if (!token) return;
+        if (get().isHydrated) return
+        set({ isLoading: true })
+        try {
+            const products = await apiFetchClient<{ id: number }[]>(
+                "/me/favorites"
+            )
 
-        const res = await fetch("http://localhost:3333/favorites", {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
+            set({
+                favorites: new Set(products.map(p => p.id)),
+                isHydrated: true,
+                isLoading: false
+            })
 
-        if (!res.ok) return;
-
-        const products = await res.json();
-        set({ favorites: products.map((p: any) => p.id) });
+        } catch (error) {
+            set({ isLoading: false })
+        }
     },
 
     toggleFavorite: async (productId) => {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            alert("Faça login para favoritar");
-            return;
+        const current = new Set(get().favorites)
+        const alreadyFavorited = current.has(productId)
+        if (alreadyFavorited) {
+            current.delete(productId)
+        } else {
+            current.add(productId)
         }
 
-        const alreadyFavorited = get().favorites.includes(productId);
-
-        // optimistic update
-        set({
-            favorites: alreadyFavorited
-                ? get().favorites.filter(id => id !== productId)
-                : [...get().favorites, productId],
-        });
+        set({ favorites: new Set(current) })
 
         try {
-            const res = await fetch("http://localhost:4000/favorites", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({ productId }),
-            });
 
-            if (!res.ok) {
-                // rollback
-                set({
-                    favorites: alreadyFavorited
-                        ? [...get().favorites, productId]
-                        : get().favorites.filter(id => id !== productId),
-                });
+            const data = await apiFetchClient<FavoriteResponse>(
+                "/me/favorites",
+                {
+                    method: "POST",
+                    body: JSON.stringify({ productId })
+                }
+            )
+            const updated = new Set(get().favorites)
+            if (data.favorited) {
+                updated.add(productId)
+            } else {
+                updated.delete(productId)
             }
+
+            set({ favorites: updated })
+
         } catch {
-            // rollback
-            set({
-                favorites: alreadyFavorited
-                    ? [...get().favorites, productId]
-                    : get().favorites.filter(id => id !== productId),
-            });
+            const rollback = new Set(get().favorites)
+
+            if (alreadyFavorited) {
+                rollback.add(productId)
+            } else {
+                rollback.delete(productId)
+            }
+            set({ favorites: rollback })
         }
-    },
-}));
+    }
+
+}))

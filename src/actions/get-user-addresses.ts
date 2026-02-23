@@ -1,30 +1,29 @@
 "use server"
 
-import { apiFetch } from "@/libs/api"
+import { apiFetchServer } from "@/libs/api-server"
 import { Address } from "@/types/address"
-
-type GetUserAddressesApiResponse = {
-    success: boolean
-    data: Address[]
-}
+import { HttpError } from "@/libs/errors/http"
 
 
 export const getUserAddresses = async (): Promise<Address[]> => {
 
-    const response = await apiFetch<GetUserAddressesApiResponse>('/me/addresses')
-    if (!response.success) {
-        if (
-            response.error.code === "AUTH_TOKEN_MISSING" ||
-            response.error.code === "AUTH_TOKEN_EXPIRED" ||
-            response.error.code === "AUTH_TOKEN_INVALID"
-        ) {
-            return []
+    try {
+        const response = await apiFetchServer<Address[]>('/me/addresses')
+        return response
+
+    } catch (error) {
+        if (error instanceof HttpError) {
+
+            if (error.status === 401) {
+                return []
+            }
+
+            throw error
         }
 
-        throw response.error
+        throw error
     }
 
-    return response.data.data
 
 
 }

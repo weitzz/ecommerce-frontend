@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation'
 
 const Page = async () => {
     const token = await getServerAuthToken();
+    console.log("CART TOKEN", token)
     if (!token) {
         redirect("/login");
     }

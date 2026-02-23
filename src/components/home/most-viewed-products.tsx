@@ -6,7 +6,6 @@ import { getProducts } from "@/actions/get-products"
 export const MostViewedProducts = async () => {
     const products = await getProducts({ orderBy: 'views', limit: 4 })
 
-
     return (
         <div className="mt-10">
             <div className="flex items-center justify-between">

@@ -1,7 +1,8 @@
 "use server"
 
-import { apiFetch } from "@/libs/api"
+import { apiFetchServer } from "@/libs/api-server"
 import type { ReadResult } from "@/libs/actions/types"
+import { HttpError } from "@/libs/errors/http"
 
 
 type ShippingInfoResponse = {
@@ -10,27 +11,29 @@ type ShippingInfoResponse = {
     shippingDays: number
 }
 
-type GetShippingInfoApiResponse = {
-    success: boolean
-    data: ShippingInfoResponse
-}
 
 
 export const getShippingInfo = async (zipcode: string): Promise<ReadResult<ShippingInfoResponse>> => {
     const params = new URLSearchParams({ zipcode })
+    const path = `/cart/shipping?${params.toString()}`
+    try {
+        const data = await apiFetchServer<ShippingInfoResponse>(path)
+        return {
+            success: true,
+            data
+        }
+    } catch (error) {
+        if (error instanceof HttpError) {
+            return {
+                success: false,
+                error
+            }
+        }
 
-    const response = await apiFetch<GetShippingInfoApiResponse>(`/cart/shipping?${params.toString()}`)
-    if (!response.success) {
-        console.error("[getShippingInfo]", response.error)
         return {
             success: false,
-            error: response.error
+            error: new HttpError(500, "Erro inesperado")
         }
-    }
-
-    return {
-        success: true,
-        data: response.data.data
     }
 
 }

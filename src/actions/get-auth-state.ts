@@ -1,10 +1,11 @@
 "use server"
 
-import { getServerAuthToken } from "@/libs/server-cookies"
+import { cookies } from "next/headers"
 
 export const getAuthState = async () => {
-    const token = await getServerAuthToken()
-    console.log(token)
-    return { token }
+    const cookieStore = await cookies()
+    const isAuthenticated = cookieStore.has("accessToken")
+    console.log(isAuthenticated)
 
+    return { isAuthenticated }
 }

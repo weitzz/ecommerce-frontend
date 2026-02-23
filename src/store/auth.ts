@@ -1,17 +1,26 @@
 import { create } from "zustand"
 
 type AuthState = {
+    isAuthenticated: boolean
     hydrated: boolean
-    token: string | null
-    setToken: (token: string | null) => void
-    clearToken: () => void
+    setAuthenticated: (value: boolean) => void
     setHydrated: () => void
+    clear: () => void
 }
 
 export const useAuthStore = create<AuthState>(set => ({
+    isAuthenticated: false,
     hydrated: false,
-    token: null,
-    setToken: (token) => set({ token }),
-    clearToken: () => set({ token: null }),
-    setHydrated: () => set({ hydrated: true }),
+
+    setAuthenticated: (value) =>
+        set({ isAuthenticated: value }),
+
+    setHydrated: () =>
+        set({ hydrated: true }),
+
+    clear: () =>
+        set({
+            isAuthenticated: false,
+            hydrated: true,
+        }),
 }))

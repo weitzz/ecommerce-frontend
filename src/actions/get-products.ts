@@ -1,8 +1,8 @@
 "use server"
 
 import type { Product } from "@/types/products"
-import { apiFetch } from "@/libs/api"
-import type { ReadResult } from "@/libs/actions/types"
+import { apiFetchServer } from "@/libs/api-server"
+
 
 
 type ProductFilter = {
@@ -12,12 +12,6 @@ type ProductFilter = {
     search?: string
     page?: number
 }
-
-type GetProductsResponse = {
-    success: boolean
-    data: Product[]
-}
-
 
 
 export const getProducts = async (
@@ -45,15 +39,10 @@ export const getProducts = async (
         params.set("page", String(filters.page))
     }
 
-    const response = await apiFetch<GetProductsResponse>(
-        `/products?${params.toString()}`
-    )
+    const query = params.toString()
+    const path = query ? `/products?${query}` : "/products"
 
-    if (!response.success) {
-        console.error("[getProducts]", response.error)
-        throw response.error
+    const products = await apiFetchServer<Product[]>(path, {}, false)
 
-    }
-
-    return response.data.data
+    return products
 }

@@ -7,6 +7,7 @@ type Props = {
 }
 
 function ProductList({ list }: Props) {
+    console.log(list)
     if (!list || list.length === 0) {
         return (
             <p className="text-gray-500 text-center">

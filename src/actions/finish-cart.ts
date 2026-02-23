@@ -1,13 +1,11 @@
 'use server'
 import type { CartItem } from "@/types/cart-item"
 import type { ReadResult } from "@/libs/actions/types"
-import { apiFetch } from "@/libs/api"
+import { apiFetchServer } from "@/libs/api-server"
+import { HttpError } from "@/libs/errors/http"
 
-type FinishCartApiResponse = {
-    success: boolean
-    data: {
-        url: string
-    }
+type FinishCartResponse = {
+    url: string
 }
 
 export const finishCart = async (
@@ -18,7 +16,7 @@ export const finishCart = async (
     if (!Array.isArray(cart) || cart.length === 0) {
         return {
             success: false,
-            error: new Error("Carrinho inválido") as any
+            error: new HttpError(400, "Carrinho inválido")
         }
     }
 
@@ -27,29 +25,33 @@ export const finishCart = async (
         quantity: Number(item.quantity),
     }))
 
-    console.log("[finishCart] payload", {
-        addressId,
-        cart: payloadCart
-    })
-
-    const response = await apiFetch<FinishCartApiResponse>('/cart/finish', {
-        method: 'POST',
-        body: JSON.stringify({
-            addressId,
-            cart: payloadCart
+    try {
+        const data = await apiFetchServer<FinishCartResponse>('/cart/finish', {
+            method: 'POST',
+            body: JSON.stringify({
+                addressId,
+                cart: payloadCart
+            })
         })
-    })
 
-    if (!response.success) {
-        console.error("[finishCart]", response.error)
+        return {
+            success: true,
+            data: data.url
+        }
+    } catch (error) {
+        if (error instanceof HttpError) {
+            return {
+                success: false,
+                error
+            }
+        }
+
         return {
             success: false,
-            error: response.error
+            error: new HttpError(500, "Erro inesperado ao finalizar compra")
         }
     }
 
-    return {
-        success: true,
-        data: response.data.data.url
-    }
+
+
 }

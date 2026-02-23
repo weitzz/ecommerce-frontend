@@ -9,10 +9,8 @@ import { useEffect } from "react"
 export const StoreHydration = () => {
     const authStore = useAuthStore(state => state)
     useEffect(() => {
-        getAuthState().then(({ token }) => {
-            if (token != null) {
-                authStore.setToken(token)
-            }
+        getAuthState().then(({ isAuthenticated }) => {
+            authStore.setAuthenticated(isAuthenticated)
             authStore.setHydrated()
         })
         getCartState().then(({ cart }) => {

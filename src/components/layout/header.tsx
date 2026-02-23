@@ -53,7 +53,7 @@ const Header = ({ isAuthenticated }: HeaderProps) => {
                         </Link>
                         {isAuthenticated ? (
                             <>
-                                <Link href="/my-orders">
+                                <Link href="/me">
                                     <HeaderIcon
                                         src="/ui/user-line.png"
                                         alt="Minha conta"
@@ -65,7 +65,7 @@ const Header = ({ isAuthenticated }: HeaderProps) => {
                                 <form action={clearAuthCookie}>
                                     <button type="submit" aria-label="Sair" className='cursor-pointer'>
                                         <HeaderIcon
-                                            src="/ui/logout.png"
+                                            src="/ui/logout-box.png"
                                             alt="Sair"
                                             width={24}
                                             height={24}

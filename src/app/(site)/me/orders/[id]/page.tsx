@@ -1,6 +1,5 @@
 import { getOrderById } from "@/actions/get-order-by-id"
 import { StatusBadge } from "@/components/order/status-badge"
-import { OrderDetail } from "@/types/order-details"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -8,7 +7,7 @@ type Props = {
     params: { id: string }
 }
 
-export default async function MyOrderDetailPage({ params }: Props) {
+export default async function OrderDetailPage({ params }: Props) {
     const orderId = Number(params.id)
 
     if (Number.isNaN(orderId)) {
@@ -23,7 +22,6 @@ export default async function MyOrderDetailPage({ params }: Props) {
 
     const order = result.data
 
-    console.log(order)
     return (
         <section className="max-w-3xl mx-auto p-6">
             {/* Header */}
@@ -36,7 +34,7 @@ export default async function MyOrderDetailPage({ params }: Props) {
                 </div>
 
                 <Link
-                    href="/my-orders"
+                    href="/me/orders"
                     className="text-sm text-blue-600 hover:underline"
                 >
                     ← Voltar
@@ -70,7 +68,7 @@ export default async function MyOrderDetailPage({ params }: Props) {
                     {order.items.map(item => (
                         <li
                             key={item.productId}
-                            className="flex gap-4 border rounded-sm p-4"
+                            className="flex gap-4 border rounded-sm p-4 bg-white border-gray-200"
                         >
                             {item.image && (
                                 <Image
@@ -99,8 +97,7 @@ export default async function MyOrderDetailPage({ params }: Props) {
                 </ul>
             </div>
 
-            {/* Resumo */}
-            <div className="border-t pt-4">
+            <div className="border-t pt-4 border-gray-200">
                 <div className="flex justify-between text-sm mb-1">
                     <span>Frete</span>
                     <span>R$ {order.shippingCost.toFixed(2)}</span>
@@ -108,7 +105,7 @@ export default async function MyOrderDetailPage({ params }: Props) {
 
                 <div className="flex justify-between font-bold text-lg">
                     <span>Total</span>
-                    <span>R$ {order.totalPrice.toFixed(2)}</span>
+                    <span className="text-green-600">R$ {order.totalPrice.toFixed(2)}</span>
                 </div>
 
                 <p className="text-sm text-gray-500 mt-1">

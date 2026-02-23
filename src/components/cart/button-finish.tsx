@@ -5,30 +5,31 @@ import { finishCart } from "@/actions/finish-cart"
 import { useAuthStore } from "@/store/auth"
 import { useCartStore } from "@/store/cartStore"
 import Link from "next/link"
+import { useToast } from "../ui/toast/toast-context"
 
 function ButtonFinish() {
-    const { token, hydrated } = useAuthStore(state => state)
+    const { showToast } = useToast()
+    const { isAuthenticated, hydrated } = useAuthStore(state => state)
     const cart = useCartStore(state => state.cart)
     const selectedAddressId = useCartStore(state => state.selectedAddressId)
     const clearCart = useCartStore(state => state.clearCart)
 
     const handleFinishButton = async () => {
-        if (!token || !selectedAddressId) return
+        if (!isAuthenticated || !selectedAddressId) return
 
         const result = await finishCart(selectedAddressId, cart)
 
         if (result.success) {
-            await clearCartCookie()
-            clearCart()
-            window.location.href = result.data
+            window.location.replace(result.data)
+
         } else {
-            alert("Erro ao finalizar compra, tente novamente.")
+            showToast("Erro ao finalizar compra, tente novamente.", "error")
         }
     }
 
     if (!hydrated) return null
 
-    if (!token) {
+    if (!isAuthenticated) {
         return (
             <Link
                 href="/login"
