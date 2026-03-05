@@ -9,12 +9,16 @@ type Props = {
 }
 
 function ProductItem({ data }: Props) {
-    const link = `/product/${data.id}`
+    const productId = Number(data.id)
+    const link = `/product/${productId}`
 
     return (
         <div className="bg-white border border-gray-200 rounded-sm p-6">
             <div className="flex justify-end">
-                <ButtonLiked data={{ id: data.id, liked: data.liked ?? false }} />
+                <ButtonLiked
+                    productId={productId}
+                    initialLiked={data.liked ?? false}
+                />
 
             </div>
             <div className="flex justify-center">

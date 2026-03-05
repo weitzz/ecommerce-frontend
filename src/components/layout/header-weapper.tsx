@@ -1,8 +1,11 @@
-import { getServerAuthToken } from "@/libs/server-cookies";
+import { getMe } from "@/actions/get-me";
 import Header from "./header";
 
 export default async function HeaderWrapper() {
-    const token = await getServerAuthToken();
-    console.log("TOKEN NO HEADER:", token)
-    return <Header isAuthenticated={!!token} />;
+    const me = await getMe();
+    return (
+        <Header
+            isAuthenticated={me.success}
+        />
+    );
 }

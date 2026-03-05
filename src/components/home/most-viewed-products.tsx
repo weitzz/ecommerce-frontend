@@ -14,7 +14,7 @@ export const MostViewedProducts = async () => {
                     <p className="text-gray-400 text-center md:text-left">Campeões de vizualização da nossa loja.</p>
                 </div>
                 <Link
-                    href="/products?order=views"
+                    href="/product?order=views"
                     className="hidden md:inline-block text-sm font-medium text-primary hover:underline"
                 >
                     Ver mais →
@@ -27,7 +27,7 @@ export const MostViewedProducts = async () => {
 
             <div className="mt-6 text-center md:hidden">
                 <Link
-                    href="/products?order=views"
+                    href="/product?order=views"
                     className="inline-block px-6 py-2 border rounded-md text-sm font-medium hover:bg-gray-100"
                 >
                     Ver mais

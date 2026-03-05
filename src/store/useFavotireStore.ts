@@ -1,5 +1,6 @@
 import { create } from "zustand"
-import { apiFetchClient } from "@/libs/api-client"
+import { getFavoriteIds } from "@/actions/get-favorite-ids"
+import { toggleFavorite as toggleFavoriteAction } from "@/actions/toggle-favorite"
 
 type FavoriteStore = {
     favorites: Set<number>
@@ -7,13 +8,8 @@ type FavoriteStore = {
     isHydrated: boolean
     hydrate: (ids: number[]) => void
     loadFavorites: () => Promise<void>
-    toggleFavorite: (productId: number) => Promise<void>
+    toggleFavorite: (productId: number, currentlyLiked?: boolean) => Promise<void>
     isFavorited: (productId: number) => boolean
-}
-
-type FavoriteResponse = {
-    favorited: boolean
-    productId: number
 }
 
 export const useFavoriteStore = create<FavoriteStore>((set, get) => ({
@@ -37,12 +33,13 @@ export const useFavoriteStore = create<FavoriteStore>((set, get) => ({
         if (get().isHydrated) return
         set({ isLoading: true })
         try {
-            const products = await apiFetchClient<{ id: number }[]>(
-                "/me/favorites"
-            )
+            const result = await getFavoriteIds()
+            if (!result.success) {
+                throw new Error(result.error.message)
+            }
 
             set({
-                favorites: new Set(products.map(p => p.id)),
+                favorites: new Set(result.data),
                 isHydrated: true,
                 isLoading: false
             })
@@ -52,34 +49,37 @@ export const useFavoriteStore = create<FavoriteStore>((set, get) => ({
         }
     },
 
-    toggleFavorite: async (productId) => {
+    toggleFavorite: async (productId, currentlyLiked) => {
         const current = new Set(get().favorites)
-        const alreadyFavorited = current.has(productId)
+        const alreadyFavorited =
+            get().isHydrated ? current.has(productId) : !!currentlyLiked
         if (alreadyFavorited) {
             current.delete(productId)
         } else {
             current.add(productId)
         }
 
-        set({ favorites: new Set(current) })
+        set({
+            favorites: new Set(current),
+            isHydrated: true
+        })
 
         try {
-
-            const data = await apiFetchClient<FavoriteResponse>(
-                "/me/favorites",
-                {
-                    method: "POST",
-                    body: JSON.stringify({ productId })
-                }
-            )
+            const result = await toggleFavoriteAction(productId)
+            if (!result.success) {
+                throw new Error(result.error.message)
+            }
             const updated = new Set(get().favorites)
-            if (data.favorited) {
+            if (result.data) {
                 updated.add(productId)
             } else {
                 updated.delete(productId)
             }
 
-            set({ favorites: updated })
+            set({
+                favorites: updated,
+                isHydrated: true
+            })
 
         } catch {
             const rollback = new Set(get().favorites)
@@ -89,7 +89,10 @@ export const useFavoriteStore = create<FavoriteStore>((set, get) => ({
             } else {
                 rollback.delete(productId)
             }
-            set({ favorites: rollback })
+            set({
+                favorites: rollback,
+                isHydrated: true
+            })
         }
     }
 

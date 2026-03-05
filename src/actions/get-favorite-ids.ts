@@ -4,26 +4,16 @@ import { apiFetchServer } from "@/libs/api-server"
 import { HttpError } from "@/libs/errors/http"
 import type { ReadResult } from "@/libs/actions/types"
 
-type ToggleFavoriteResponse = {
-    favorited: boolean
-    productId: number
+type FavoriteItem = {
+    id: number
 }
 
-export const toggleFavorite = async (
-    productId: number
-): Promise<ReadResult<boolean>> => {
+export const getFavoriteIds = async (): Promise<ReadResult<number[]>> => {
     try {
-        const data = await apiFetchServer<ToggleFavoriteResponse>(
-            "/me/favorites",
-            {
-                method: "POST",
-                body: JSON.stringify({ productId })
-            }
-        )
-
+        const favorites = await apiFetchServer<FavoriteItem[]>("/me/favorites")
         return {
             success: true,
-            data: data.favorited
+            data: favorites.map(item => item.id)
         }
     } catch (error) {
         if (error instanceof HttpError) {

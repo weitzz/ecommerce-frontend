@@ -13,6 +13,7 @@ type Props = {
 export const ProductDetails = ({ product }: Props) => {
     const router = useRouter()
     const cartStore = useCartStore()
+    const productId = Number(product.id)
 
     const addToCart = async () => {
         cartStore.addItem({ productId: product.id, quantity: 1 })
@@ -34,7 +35,7 @@ export const ProductDetails = ({ product }: Props) => {
             <div className='flex gap-4'>
                 <button onClick={addToCart}
                     className='flex-1 cursor-pointer max-w-xs  px-8 py-4 bg-blue-600 text-white border-0 rounded-sm hover:opacity-90'>Adicionar ao carrinho</button>
-                <ButtonLiked productId={product.id} />
+                <ButtonLiked productId={productId} />
                 <div className="cursor-pointer size-12 border border-gray-200 rounded-sm flex justify-center items-center">
                     <Image
                         src={`/ui/share-line.png`}

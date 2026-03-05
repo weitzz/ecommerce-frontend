@@ -10,7 +10,8 @@ export const getServerAuthToken = async () => {
 export const clearServerAuthToken = async () => {
     const cookieStore = await cookies()
     cookieStore.delete('accessToken')
-    cookieStore.delete('resfreshToken')
+    cookieStore.delete('refreshToken')
+    cookieStore.delete('cart')
 }
 
 

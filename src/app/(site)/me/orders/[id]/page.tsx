@@ -24,7 +24,6 @@ export default async function OrderDetailPage({ params }: Props) {
 
     return (
         <section className="max-w-3xl mx-auto p-6">
-            {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                     <h1 className="text-2xl font-bold">
@@ -46,7 +45,6 @@ export default async function OrderDetailPage({ params }: Props) {
                 {new Date(order.createdAt).toLocaleDateString()}
             </p>
 
-            {/* Endereço */}
             <div className="mb-8">
                 <h2 className="font-semibold mb-2">
                     Endereço de entrega
@@ -58,7 +56,6 @@ export default async function OrderDetailPage({ params }: Props) {
                 </p>
             </div>
 
-            {/* Itens */}
             <div className="mb-8">
                 <h2 className="font-semibold mb-4">
                     Itens do pedido

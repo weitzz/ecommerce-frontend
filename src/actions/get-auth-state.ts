@@ -1,11 +1,13 @@
 "use server"
 
-import { cookies } from "next/headers"
+import { apiFetchServer } from "@/libs/api-server"
 
 export const getAuthState = async () => {
-    const cookieStore = await cookies()
-    const isAuthenticated = cookieStore.has("accessToken")
-    console.log(isAuthenticated)
+    try {
+        await apiFetchServer("/me")
+        return { isAuthenticated: true }
+    } catch {
+        return { isAuthenticated: false }
+    }
 
-    return { isAuthenticated }
 }

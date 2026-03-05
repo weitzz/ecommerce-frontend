@@ -1,7 +1,7 @@
 "use client"
+import React from 'react'
 import { useAuthStore } from '@/store/auth'
 import { useCartStore } from '@/store/cartStore'
-import React from 'react'
 import { ShippingBoxNotLogged } from './shipping-box-not-logged'
 import { ShippingBoxLogged } from './shipping-box-logged'
 

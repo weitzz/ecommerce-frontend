@@ -1,19 +1,18 @@
+import { getMe } from '@/actions/get-me'
 import { getCartState } from '@/actions/get-cart-state'
 import { getProductsFromList } from '@/actions/get-products-from-list'
 import { CartContainer } from '@/components/cart/cart-container'
-import { getServerAuthToken } from '@/libs/server-cookies'
 import { CartListItem } from '@/types/cart-list-item'
 import { redirect } from 'next/navigation'
 
 
 const Page = async () => {
-    const token = await getServerAuthToken();
-    console.log("CART TOKEN", token)
-    if (!token) {
+    const me = await getMe()
+    if (!me.success) {
         redirect("/login");
     }
+
     const { cart } = await getCartState()
-    console.log(cart)
     if (cart.length === 0) {
         redirect('/')
     }

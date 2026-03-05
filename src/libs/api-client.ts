@@ -1,5 +1,4 @@
 import { baseFetch } from "./api-core"
-import { refreshAuthToken } from "./auth-refresh"
 import { HttpError } from "./errors/http"
 
 export async function apiFetchClient<T>(
@@ -11,21 +10,6 @@ export async function apiFetchClient<T>(
         ...options,
         credentials: "include"
     })
-
-    if (response.status === 401) {
-        console.log("Token expirado → tentando refresh API-CLIENT")
-        const refreshed = await refreshAuthToken()
-
-        if (refreshed) {
-            const retry = await baseFetch(path, {
-                ...options,
-                credentials: "include"
-            })
-
-            response = retry.response
-            data = retry.data
-        }
-    }
 
     if (!response.ok) {
         throw new HttpError(
