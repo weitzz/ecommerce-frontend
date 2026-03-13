@@ -6,18 +6,21 @@ import Search from '../filter/search';
 import { MenuItem } from '@/types/menu';
 import { useMenuStore } from '@/store/menuStore';
 import { clearAuthCookie } from '@/actions/clear-auth-cookie';
+import { useAuthStore } from '@/store/auth';
 
 type HeaderProps = {
     isAuthenticated: boolean;
 };
 
-const Header = ({ isAuthenticated }: HeaderProps) => {
+const Header = ({ isAuthenticated: initialIsAuthenticated }: HeaderProps) => {
     const menu: MenuItem[] = [
         { label: "Camisas", href: '/categories/camisas' },
         { label: "Kits", href: '/categories/kits' },
         { label: "Bonés", href: '/categories/bones' }]
 
     const { isOpen, toggleMenu } = useMenuStore();
+    const { isAuthenticated, hydrated, clear } = useAuthStore(state => state)
+    const authState = hydrated ? isAuthenticated : initialIsAuthenticated
 
     return (
         <header className="bg-white border-b border-gray-100">
@@ -51,7 +54,7 @@ const Header = ({ isAuthenticated }: HeaderProps) => {
                         <Link href={"/cart"}>
                             <HeaderIcon src="/ui/shopping-bag-4-line.png" alt="Carrinho" width={24} height={24} />
                         </Link>
-                        {isAuthenticated ? (
+                        {authState ? (
                             <>
                                 <Link href="/me">
                                     <HeaderIcon
@@ -63,7 +66,7 @@ const Header = ({ isAuthenticated }: HeaderProps) => {
                                 </Link>
 
                                 <form action={clearAuthCookie}>
-                                    <button type="submit" aria-label="Sair" className='cursor-pointer'>
+                                    <button type="submit" aria-label="Sair" className='cursor-pointer' onClick={() => clear()}>
                                         <HeaderIcon
                                             src="/ui/logout-box.png"
                                             alt="Sair"

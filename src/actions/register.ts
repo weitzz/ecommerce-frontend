@@ -34,10 +34,10 @@ export async function registerAction(prevState: RegisterResponse, formData: Form
     }
 
     try {
-        const response = await apiFetchServer<RegisterResponse>('/auth/register', {
+        await apiFetchServer<RegisterResponse>('/auth/register', {
             method: "POST",
             body: JSON.stringify(parsed.data)
-        })
+        }, false)
 
 
         return { success: true }

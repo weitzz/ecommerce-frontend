@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useActionState } from 'react'
 import { Input } from '../ui/input'
 import { SubmitButton } from '../ui/button-submit'
+import { useAuthStore } from '@/store/auth'
 
 
 const initialState: LoginResponse = { success: false, errors: {} }
@@ -13,12 +14,17 @@ const initialState: LoginResponse = { success: false, errors: {} }
 const LoginForm = () => {
     const router = useRouter()
     const [state, formAction] = useActionState(loginAction, initialState)
+    const setAuthenticated = useAuthStore(state => state.setAuthenticated)
+    const setHydrated = useAuthStore(state => state.setHydrated)
 
     useEffect(() => {
         if (state.success) {
-            router.push("/")
+            setAuthenticated(true)
+            setHydrated()
+            router.replace("/")
+            router.refresh()
         }
-    }, [state.success, router])
+    }, [router, setAuthenticated, setHydrated, state.success])
 
 
     return (
