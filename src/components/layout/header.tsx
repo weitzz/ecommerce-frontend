@@ -5,7 +5,6 @@ import Link from 'next/link';
 import Search from '../filter/search';
 import { MenuItem } from '@/types/menu';
 import { useMenuStore } from '@/store/menuStore';
-import { clearAuthCookie } from '@/actions/clear-auth-cookie';
 import { useAuthStore } from '@/store/auth';
 
 type HeaderProps = {
@@ -19,7 +18,7 @@ const Header = ({ isAuthenticated: initialIsAuthenticated }: HeaderProps) => {
         { label: "Bonés", href: '/categories/bones' }]
 
     const { isOpen, toggleMenu } = useMenuStore();
-    const { isAuthenticated, hydrated, clear } = useAuthStore(state => state)
+    const { isAuthenticated, hydrated } = useAuthStore(state => state)
     const authState = hydrated ? isAuthenticated : initialIsAuthenticated
 
     return (
@@ -65,8 +64,8 @@ const Header = ({ isAuthenticated: initialIsAuthenticated }: HeaderProps) => {
                                     />
                                 </Link>
 
-                                <form action={clearAuthCookie}>
-                                    <button type="submit" aria-label="Sair" className='cursor-pointer' onClick={() => clear()}>
+                                <form action="/api/auth/logout" method="post">
+                                    <button type="submit" aria-label="Sair" className='cursor-pointer'>
                                         <HeaderIcon
                                             src="/ui/logout-box.png"
                                             alt="Sair"

@@ -1,7 +1,3 @@
-"use server"
-
-import { cookies } from "next/headers"
-
 export async function refreshAuthToken(refreshTokenValue: string) {
     try {
 
@@ -27,26 +23,6 @@ export async function refreshAuthToken(refreshTokenValue: string) {
             setCookie?.match(/refreshToken=([^;]+)/)?.[1]
 
         const accessToken = result.data.accessToken
-
-        const cookieStore = await cookies()
-
-        // salva novo access token
-        cookieStore.set("accessToken", accessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            path: "/"
-        })
-
-        // se refresh token rotacionou
-        if (newRefreshToken) {
-            cookieStore.set("refreshToken", newRefreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "strict",
-                path: "/"
-            })
-        }
 
         return {
             accessToken,

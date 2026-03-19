@@ -12,7 +12,7 @@ type ProductCategoryData = {
 
 export const getProductCategory = async (id: number): Promise<ProductCategoryData> => {
 
-    const response = await apiFetchServer<ProductCategoryData>(`/products/${id}`)
+    const response = await apiFetchServer<ProductCategoryData>(`/products/${id}`, {}, false)
 
     return response
 }   

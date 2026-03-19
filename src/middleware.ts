@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-
-const isProd = process.env.NODE_ENV === "production"
+import { clearAuthCookies, setAuthCookies } from "./libs/auth-cookies"
+import { refreshAuthToken } from "./libs/auth-refresh"
+import { isJwtExpired } from "./libs/jwt"
 
 function redirectToLogin(req: NextRequest) {
     const loginUrl = new URL("/login", req.url)
     loginUrl.searchParams.set("redirect", req.nextUrl.pathname)
     const response = NextResponse.redirect(loginUrl)
-    response.cookies.delete("accessToken")
-    response.cookies.delete("refreshToken")
+    clearAuthCookies(response.cookies)
     return response
 }
 
@@ -30,55 +30,21 @@ export async function middleware(req: NextRequest) {
         return redirectToLogin(req)
     }
 
-    // sessão ativa
-    if (accessToken) {
+    const shouldRefresh = !accessToken || isJwtExpired(accessToken)
+
+    if (!shouldRefresh) {
         return NextResponse.next()
     }
 
-    // sem access token, tenta renovar com refresh token
     try {
-        const refreshResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE}/auth/refresh`,
-            {
-                method: "POST",
-                headers: {
-                    Cookie: `refreshToken=${refreshToken};`,
-                    "Content-Type": "application/json"
-                },
-                cache: "no-store"
-            }
-        )
+        const tokenData = await refreshAuthToken(refreshToken)
 
-        if (!refreshResponse.ok) {
-            return redirectToLogin(req)
-        }
-
-        const result = await refreshResponse.json().catch(() => null)
-        const newAccessToken = result?.data?.accessToken
-        if (!newAccessToken) {
+        if (!tokenData?.accessToken) {
             return redirectToLogin(req)
         }
 
         const response = NextResponse.next()
-        response.cookies.set("accessToken", newAccessToken, {
-            httpOnly: true,
-            path: "/",
-            sameSite: "lax",
-            secure: isProd,
-            maxAge: 15 * 60
-        })
-
-        const setCookie = refreshResponse.headers.get("set-cookie")
-        const newRefreshToken = setCookie?.match(/refreshToken=([^;]+)/)?.[1]
-        if (newRefreshToken) {
-            response.cookies.set("refreshToken", newRefreshToken, {
-                httpOnly: true,
-                path: "/",
-                sameSite: "lax",
-                secure: isProd,
-                maxAge: 7 * 24 * 60 * 60
-            })
-        }
+        setAuthCookies(response.cookies, tokenData)
 
         return response
     } catch {

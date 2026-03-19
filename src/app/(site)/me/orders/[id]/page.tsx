@@ -4,11 +4,12 @@ import Image from "next/image"
 import Link from "next/link"
 
 type Props = {
-    params: { id: string }
+    params: Promise<{ id: string }>
 }
 
 export default async function OrderDetailPage({ params }: Props) {
-    const orderId = Number(params.id)
+    const { id } = await params
+    const orderId = Number(id)
 
     if (Number.isNaN(orderId)) {
         return <p>Pedido inválido.</p>

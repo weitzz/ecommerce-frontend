@@ -1,5 +1,6 @@
 "use server"
 
+import { setAuthCookies } from "@/libs/auth-cookies"
 import { LoginSchema } from "@/schemas/login"
 import { zodToFieldErrors } from "@/libs/errors/zod"
 import { ActionResult } from "@/libs/actions/types"
@@ -52,29 +53,13 @@ export async function loginAction(prevState: LoginResponse,
             }
         }
         const cookieStore = await cookies()
-        const isProd = process.env.NODE_ENV === "production"
-
-        cookieStore.set("accessToken", data.data.accessToken, {
-            httpOnly: true,
-            path: "/",
-            sameSite: "lax",
-            secure: isProd,
-            maxAge: 15 * 60
-        })
-
         const setCookie = response.headers.get("set-cookie")
-        if (setCookie) {
-            const refreshToken = setCookie.match(/refreshToken=([^;]+)/)?.[1]
-            if (refreshToken) {
-                cookieStore.set("refreshToken", refreshToken, {
-                    httpOnly: true,
-                    path: "/",
-                    sameSite: "lax",
-                    secure: isProd,
-                    maxAge: 7 * 24 * 60 * 60
-                })
-            }
-        }
+        const refreshToken = setCookie?.match(/refreshToken=([^;]+)/)?.[1]
+
+        setAuthCookies(cookieStore, {
+            accessToken: data.data.accessToken,
+            refreshToken
+        })
 
         return { success: true }
 

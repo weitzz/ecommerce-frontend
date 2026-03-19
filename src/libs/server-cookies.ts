@@ -1,3 +1,4 @@
+import { clearAuthCookies } from "@/libs/auth-cookies";
 import { CartItem } from "@/types/cart-item";
 import { cookies } from "next/headers";
 
@@ -9,8 +10,7 @@ export const getServerAuthToken = async () => {
 
 export const clearServerAuthToken = async () => {
     const cookieStore = await cookies()
-    cookieStore.delete('accessToken')
-    cookieStore.delete('refreshToken')
+    clearAuthCookies(cookieStore)
     cookieStore.delete('cart')
 }
 

@@ -5,17 +5,23 @@ import { ProductDetails } from '@/components/product/product-details'
 import RelatedProducts from '@/components/product/related-products'
 import RelatedProductsSkeleton from '@/components/product/related-products-skeleton'
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
 import React, { Suspense } from 'react'
 
 
 type Props = {
-    params: { id: number }
-
+    params: Promise<{ id: string }>
 }
 
 const Page = async ({ params }: Props) => {
     const { id } = await params
-    const { product, category } = await getProductCategory(id)
+    const productId = Number(id)
+
+    if (Number.isNaN(productId)) {
+        notFound()
+    }
+
+    const { product, category } = await getProductCategory(productId)
 
 
     return (
