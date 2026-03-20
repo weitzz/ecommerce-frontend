@@ -18,7 +18,6 @@ export default async function Page({ params, searchParams }: Props) {
         return notFound()
     }
 
-    console.log(categoryWithMetadata.data.category.name)
     return (
         <>
 

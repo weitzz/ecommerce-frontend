@@ -1,10 +1,8 @@
 "use client"
 
-import { useQueryString } from "@/hooks/useQueryString"
-import { ChangeEvent, useState } from "react"
+import { useState } from "react"
 import CheckBoxInput from "./checkbox"
 import Image from "next/image"
-import { useMenuStore } from "@/store/menuStore"
 import { CategoryMetadataValue } from "@/types/category"
 type Props = {
     id: string
@@ -13,11 +11,7 @@ type Props = {
 }
 
 const FilterGroup = ({ id, name, values }: Props) => {
-    // const { groups, toggleGroup } = useMenuStore()
-    // const opened = groups[id] ?? true
     const [opened, setOpened] = useState(true)
-
-    console.log(values)
     return (
         <div className="mb-8">
             <div className="flex justify-between items-center border-b border-gray-200 pb-4 ">

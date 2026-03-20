@@ -3,10 +3,8 @@ import { redirect } from "next/navigation"
 
 export default async function MePage() {
     const result = await getMe()
-    console.log(result)
 
     if (!result.success) {
-        // token inválido / expirado → middleware normalmente já bloqueia
         redirect("/login")
     }
 

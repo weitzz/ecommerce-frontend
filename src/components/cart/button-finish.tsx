@@ -1,6 +1,5 @@
 'use client'
 
-import { clearCartCookie } from "@/actions/clear-cart-cookie"
 import { finishCart } from "@/actions/finish-cart"
 import { useAuthStore } from "@/store/auth"
 import { useCartStore } from "@/store/cartStore"
@@ -12,7 +11,6 @@ function ButtonFinish() {
     const { isAuthenticated, hydrated } = useAuthStore(state => state)
     const cart = useCartStore(state => state.cart)
     const selectedAddressId = useCartStore(state => state.selectedAddressId)
-    const clearCart = useCartStore(state => state.clearCart)
 
     const handleFinishButton = async () => {
         if (!isAuthenticated || !selectedAddressId) return

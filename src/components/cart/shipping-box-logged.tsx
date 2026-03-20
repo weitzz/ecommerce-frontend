@@ -38,7 +38,6 @@ export const ShippingBoxLogged = () => {
     useEffect(() => {
         if (!shippingZipcode) return
         updateShippingByZipcode(shippingZipcode)
-        console.log("Calculando frete para:", shippingZipcode)
     }, [shippingZipcode])
 
     const handleSelectAddress = async (e: React.ChangeEvent<HTMLSelectElement>) => {

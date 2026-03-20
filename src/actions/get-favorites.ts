@@ -20,7 +20,6 @@ export const getFavorites = async (): Promise<
 
     try {
         const products = await apiFetchServer<FavoriteProduct[]>("/me/favorites")
-        console.log(products)
         const normalized = products.map(product => ({
             ...product,
             image: getImageUrl(product.image)

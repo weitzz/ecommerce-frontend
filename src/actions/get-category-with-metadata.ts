@@ -13,7 +13,7 @@ type CategoryWithMetadata = {
 export const getCategoryWithMetadata = async (slug: string): Promise<ReadResult<CategoryWithMetadata>> => {
     try {
         const data = await apiFetchServer<CategoryWithMetadata>(`/categories/${slug}/metadata`, {}, false)
-        console.log(data.category.name)
+
         return {
             success: true,
             data

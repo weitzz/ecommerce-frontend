@@ -13,7 +13,6 @@ export type Profile = {
 export const getMe = async (): Promise<ReadResult<Profile>> => {
     try {
         const profile = await apiFetchServer<Profile>("/me")
-        console.log(profile)
         return {
             success: true,
             data: profile

@@ -22,8 +22,6 @@ export const ProductDetails = ({ product }: Props) => {
 
         const result = await setCartState(updatedCart)
 
-        console.log(result)
-
         router.push("/cart")
     }
     return (

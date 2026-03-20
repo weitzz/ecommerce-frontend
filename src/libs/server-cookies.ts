@@ -28,7 +28,6 @@ export const setServerCart = async (cart: CartItem[]) => {
 
 export const getServerCart = async (): Promise<CartItem[]> => {
     const cookieStore = await cookies()
-    console.log(cookieStore)
     const value = cookieStore.get("cart")?.value
 
     if (!value) return []
