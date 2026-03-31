@@ -29,10 +29,9 @@ export const finishCart = async (
         const data = await apiFetchServer<FinishCartResponse>('/cart/finish', {
             method: 'POST',
             body: JSON.stringify({
-                data: {
-                    addressId,
-                    cart: payloadCart
-                }
+                addressId,
+                cart: payloadCart
+
             })
         })
 
