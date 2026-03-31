@@ -5,7 +5,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_BASE!
 export async function baseFetch(path: string, options?: RequestInit) {
     const headers = new Headers(options?.headers)
     if (!headers.has("Content-Type")) {
-        headers.set("Content-type", "application/json")
+        headers.set("Content-Type", "application/json")
     }
 
     const response = await fetch(`${API_URL}${path}`, {
