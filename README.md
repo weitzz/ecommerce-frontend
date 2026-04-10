@@ -4,6 +4,8 @@ Frontend de um e-commerce construído com Next.js, focado na navegação de cat�
 
 O projeto consome uma API externa para produtos, banners, autenticação, endereços, frete e finalização da compra, combinando renderização no servidor com estado client-side para melhorar a experiência da loja.
 
+Site : https://ecommerce-frontend-one-beige-72.vercel.app/
+
 Repositório da API:
 
 - https://github.com/weitzz/ecommerce-api
