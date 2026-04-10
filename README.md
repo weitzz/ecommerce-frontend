@@ -35,6 +35,7 @@ Principais fluxos já implementados:
 - Home com banners e vitrines de produtos mais vistos e mais vendidos
 - Listagem por categoria com filtros dinâmicos
 - Busca de produtos
+- Paginação nas listagens de produtos
 - Página de detalhes de produto e relacionados
 - Cadastro e login com persistência de sessão por cookies
 - Área autenticada com pedidos, favoritos e perfil
