@@ -24,14 +24,13 @@ const Header = ({ isAuthenticated: initialIsAuthenticated }: HeaderProps) => {
     return (
         <header className="bg-white border-b border-gray-100">
             <p className="bg-black text-white text-center p-4">
-                <strong>FRETE GRÁTIS</strong>  para todo o Nordeste nas compras acima de R$ 199,00. <strong>APROVEITA!</strong> </p>
+                <strong>FRETE GRÁTIS</strong>  para todo o Brasil nas compras acima de R$ 199,00. <strong>APROVEITA!</strong> </p>
             <section className="w-full max-w-6xl mx-auto p-6 ">
                 <div className='flex items-center justify-between'>
-                    <div className='w-32'>
-                        <Link href={"/"}>
-                            <Image src="/ui/logo-black.png" alt="ecommerce" width={120} height={40} />
-                        </Link>
-                    </div>
+                    <Link href={"/"}>
+                        <Image src="/ui/Logo_tw.png" alt="ecommerce" width={220} height={60} className='w-30 h-auto' />
+                    </Link>
+
                     <div className='flex-1 '>
                         <div className=' w-full hidden md:flex items-center px-6 gap-6'>
                             <div className='flex-1 '>

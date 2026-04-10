@@ -1,4 +1,3 @@
-import React from 'react'
 import Image from "next/image";
 import Link from "next/link";
 import { MenuItem } from '@/types/menu';
@@ -6,7 +5,8 @@ import { FooterButton } from './footer-button';
 function Footer() {
     const menu: MenuItem[] = [
         { label: 'Camisas', href: '/categories/camisas' },
-        { label: 'Kits', href: '/categories/kits' }
+        { label: 'Kits', href: '/categories/kits' },
+        { label: 'Bonés', href: '/categories/bones' },
     ];
     return (
         <footer>
@@ -41,9 +41,9 @@ function Footer() {
                     <div className="flex flex-col md:flex-row justify-between items-center gap-6 py-16 md:py-10 border-b border-gray-700">
                         <Link href="/">
                             <Image
-                                src={'/ui/logo-white.png'}
+                                src={'/ui/logo-tw.png'}
                                 alt="B7Store"
-                                width={143}
+                                width={180}
                                 height={48}
                             />
                         </Link>
@@ -58,9 +58,9 @@ function Footer() {
                             <h4 className="mb-6 text-center md:text-left">Precisa de ajuda?</h4>
                             <div className="flex flex-col md:flex-row gap-6">
                                 <FooterButton
-                                    href="mailto:suporte@b7web.com.br"
+                                    href="mailto:suporte@store.com.br"
                                     icon="/ui/mail-line.png"
-                                    label="suporte@b7web.com.br"
+                                    label="suporte@store.com.br"
                                 />
                                 <FooterButton
                                     href=""

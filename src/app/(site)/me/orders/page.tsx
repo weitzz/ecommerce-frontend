@@ -15,7 +15,7 @@ export default async function MyOrdersPage() {
     return (
         <section className="max-w-3xl mx-auto p6">
             <h1 className="text-2xl font-bold mb-6">Meus pedidos</h1>
-            <div className="gap-3 flex ">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {result.data.map(order => (
                     <div className="bg-white border border-gray-200 rounded-sm p-6" key={order.id}>
                         <p className="font-semibold">Pedido #{order.id}</p>
